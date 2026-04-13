@@ -138,19 +138,19 @@
     <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-6">
       <!-- Spice Level -->
       <div class="space-y-2">
-        <label class="text-slate-200 font-medium">Romance Intensity</label>
+        <p class="text-slate-200 font-medium">Romance Intensity</p>
         <SpiceSelector bind:value={spiceLevel} on:change={e => spiceLevel = e.detail as SpiceLevel} />
       </div>
 
       <!-- Speed -->
       <div class="space-y-2">
-        <label class="text-slate-200 font-medium">Game Speed</label>
+        <p class="text-slate-200 font-medium">Game Speed</p>
         <SpeedSelector bind:value={speedSetting} on:change={e => speedSetting = e.detail as SpeedSetting} />
       </div>
 
       <!-- Themes -->
       <div class="space-y-2">
-        <label class="text-slate-200 font-medium">Story Themes</label>
+        <p class="text-slate-200 font-medium">Story Themes</p>
         <ThemeGrid bind:selected={selectedThemes} on:change={e => selectedThemes = e.detail} />
       </div>
 
@@ -166,26 +166,26 @@
       {#if showCustomize}
         <div class="space-y-3 border-t border-slate-700 pt-4">
           <div>
-            <label class="text-slate-400 text-sm">Protagonist idea</label>
-            <input bind:value={characterIdea} type="text" maxlength="100"
+            <label for="characterIdea" class="text-slate-400 text-sm">Protagonist idea</label>
+            <input id="characterIdea" bind:value={characterIdea} type="text" maxlength="100"
               class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-purple-500"
               placeholder="e.g., a botanist who studies rare plants" />
           </div>
           <div>
-            <label class="text-slate-400 text-sm">Love interest idea</label>
-            <input bind:value={loveInterestIdea} type="text" maxlength="100"
+            <label for="loveInterestIdea" class="text-slate-400 text-sm">Love interest idea</label>
+            <input id="loveInterestIdea" bind:value={loveInterestIdea} type="text" maxlength="100"
               class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-purple-500"
               placeholder="e.g., a brooding pack alpha with a secret" />
           </div>
           <div>
-            <label class="text-slate-400 text-sm">Setting</label>
-            <input bind:value={setting} type="text" maxlength="100"
+            <label for="setting" class="text-slate-400 text-sm">Setting</label>
+            <input id="setting" bind:value={setting} type="text" maxlength="100"
               class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-purple-500"
               placeholder="e.g., a remote mountain research station" />
           </div>
           <div>
-            <label class="text-slate-400 text-sm">Plot hook</label>
-            <input bind:value={plotHook} type="text" maxlength="150"
+            <label for="plotHook" class="text-slate-400 text-sm">Plot hook</label>
+            <input id="plotHook" bind:value={plotHook} type="text" maxlength="150"
               class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-purple-500"
               placeholder="e.g., she holds a key the pack has been searching for" />
           </div>
