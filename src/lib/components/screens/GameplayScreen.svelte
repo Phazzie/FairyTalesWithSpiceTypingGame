@@ -236,15 +236,15 @@
       <button
         type="button"
         aria-label="Toggle pause"
-        class="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+        class="p-2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
         on:click={togglePause}
-      >⏸</button>
+      ><span aria-hidden="true">⏸</span> Pause</button>
       <button
         type="button"
         aria-label="Toggle fullscreen"
-        class="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+        class="p-2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
         on:click={toggleFullscreen}
-      >⛶</button>
+      ><span aria-hidden="true">⤢</span> Fullscreen</button>
     </div>
   </div>
 
