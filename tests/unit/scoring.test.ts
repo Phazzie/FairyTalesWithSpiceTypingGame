@@ -3,15 +3,15 @@ import { calculatePoints, matchPhrase, getNextCombo, resetCombo } from '../../sr
 
 describe('calculatePoints', () => {
   it('returns base points at combo 0 speed 1', () => {
-    const pts = calculatePoints({ elapsedMs: 1000, speedConfig: { pixelsPerTick: 1 }, combo: 0 });
+    const pts = calculatePoints({ speedConfig: { pixelsPerTick: 1 }, combo: 0 });
     expect(pts).toBe(100);
   });
   it('multiplies by speed', () => {
-    const pts = calculatePoints({ elapsedMs: 1000, speedConfig: { pixelsPerTick: 2 }, combo: 0 });
+    const pts = calculatePoints({ speedConfig: { pixelsPerTick: 2 }, combo: 0 });
     expect(pts).toBe(200);
   });
   it('applies combo multiplier', () => {
-    const pts = calculatePoints({ elapsedMs: 1000, speedConfig: { pixelsPerTick: 1 }, combo: 4 });
+    const pts = calculatePoints({ speedConfig: { pixelsPerTick: 1 }, combo: 4 });
     expect(pts).toBe(200); // multiplier at index 4 is 2.0
   });
 });

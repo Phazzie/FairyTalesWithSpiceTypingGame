@@ -1,7 +1,6 @@
 import { COMBO_MULTIPLIERS, BASE_POINTS } from '../config';
 
 export function calculatePoints(params: {
-  elapsedMs: number;
   speedConfig: { pixelsPerTick: number };
   combo: number;
 }): number {

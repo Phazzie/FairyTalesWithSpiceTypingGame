@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { phase, story, loadingMessage, errorMessage, settings, transitionTo } from '$lib/stores/app';
+  import { story, loadingMessage, errorMessage, settings, transitionTo, restoreToGameplay } from '$lib/stores/app';
   import { phrases, currentChapter, score, combo, bestCombo, revealedSegments, caughtIndices, missedIndices, chapterStats, isRunning, isPaused, currentPhraseIndex, shivaPosition, phraseStartTime } from '$lib/stores/game';
   import SpiceSelector from '../ui/SpiceSelector.svelte';
   import SpeedSelector from '../ui/SpeedSelector.svelte';
@@ -105,9 +105,7 @@
     shivaPosition.set(START_POSITION);
     isRunning.set(false);
     isPaused.set(false);
-    // Force phase transition from START to GAMEPLAY via intermediate phases
-    phase.set('CHAPTER_COMPLETE');
-    transitionTo('GAMEPLAY');
+    restoreToGameplay();
   }
 </script>
 

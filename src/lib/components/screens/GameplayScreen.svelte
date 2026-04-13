@@ -34,14 +34,18 @@
     phraseStartTime.set(Date.now());
     interval = setInterval(() => {
       if (get(isPaused) || !get(isRunning)) return;
+      let didMiss = false;
       shivaPosition.update(pos => {
         const next = pos - speedConfig.pixelsPerTick;
         if (next <= ESCAPE_THRESHOLD) {
-          triggerMiss();
+          didMiss = true;
           return START_POSITION;
         }
         return next;
       });
+      if (didMiss) {
+        triggerMiss();
+      }
     }, speedConfig.tickMs);
   }
 
@@ -50,9 +54,8 @@
     const phrase = get(phrases)[idx];
     if (!phrase) return;
 
-    const elapsed = Date.now() - get(phraseStartTime);
     const curCombo = get(combo);
-    const points = calculatePoints({ elapsedMs: elapsed, speedConfig, combo: curCombo });
+    const points = calculatePoints({ speedConfig, combo: curCombo });
 
     score.update(s => s + points);
     const newCombo = getNextCombo(curCombo);
@@ -127,6 +130,20 @@
     isPaused.update(p => !p);
   }
 
+  function handleBlur() {
+    if (!get(isPaused)) {
+      isPaused.set(true);
+    }
+  }
+
+  async function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      await document.exitFullscreen().catch(() => {});
+    }
+  }
+
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') togglePause();
   }
@@ -186,7 +203,11 @@
       }
     }, 5000);
     window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('blur', handleBlur);
+    };
   });
 
   onDestroy(() => {
@@ -211,6 +232,20 @@
       <div class="text-2xl font-bold text-yellow-400">{$score.toLocaleString()}</div>
       <ComboDisplay />
     </div>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        aria-label="Toggle pause"
+        class="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+        on:click={togglePause}
+      >⏸</button>
+      <button
+        type="button"
+        aria-label="Toggle fullscreen"
+        class="p-2 text-slate-400 hover:text-slate-200 transition-colors"
+        on:click={toggleFullscreen}
+      >⛶</button>
+    </div>
   </div>
 
   <!-- Progress -->
@@ -231,7 +266,7 @@
   />
 
   <!-- Pause hint -->
-  <p class="text-slate-600 text-xs text-center">Press Escape to pause</p>
+  <p class="text-slate-600 text-xs text-center">Press Escape or click ⏸ to pause · Tab away auto-pauses</p>
 
   <!-- Pause overlay -->
   <PauseOverlay on:resume={togglePause} on:quit={handleQuit} />

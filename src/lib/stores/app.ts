@@ -13,7 +13,7 @@ const ALLOWED_TRANSITIONS: Record<AppPhase, AppPhase[]> = {
   GRADING: ['EXTRACTING', 'GENERATING', 'ERROR'],
   EXTRACTING: ['GAMEPLAY', 'ERROR'],
   GAMEPLAY: ['CHAPTER_COMPLETE', 'ERROR'],
-  CHAPTER_COMPLETE: ['EXTRACTING', 'GAMEPLAY', 'STORY_COMPLETE'],
+  CHAPTER_COMPLETE: ['EXTRACTING', 'STORY_COMPLETE'],
   STORY_COMPLETE: ['START'],
   ERROR: ['START'],
 };
@@ -24,4 +24,12 @@ export function transitionTo(next: AppPhase): void {
     console.warn(`Invalid phase transition: ${current} -> ${next}`);
     return current;
   });
+}
+
+/**
+ * Restores the app directly to GAMEPLAY after rehydrating all game stores from a save.
+ * Bypasses normal phase guards because this is a controlled restore path, not gameplay flow.
+ */
+export function restoreToGameplay(): void {
+  phase.set('GAMEPLAY');
 }

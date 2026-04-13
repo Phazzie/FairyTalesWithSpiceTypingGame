@@ -64,8 +64,28 @@ describe('saveGame / loadGame / clearGame', () => {
     expect(loadGame()).toBeNull();
   });
 
-  it('handles corrupt data gracefully', () => {
+  it('handles corrupt JSON gracefully', () => {
     localStorage.setItem('fairytales_save', 'not-json{{{');
+    expect(loadGame()).toBeNull();
+  });
+
+  it('rejects saves with missing required fields', () => {
+    // Missing phrases array
+    const corrupt = { ...baseSave, phrases: undefined };
+    localStorage.setItem('fairytales_save', JSON.stringify(corrupt));
+    expect(loadGame()).toBeNull();
+  });
+
+  it('rejects saves with invalid chapter count', () => {
+    const corrupt = JSON.parse(JSON.stringify(baseSave));
+    corrupt.story.chapters = corrupt.story.chapters.slice(0, 2);
+    localStorage.setItem('fairytales_save', JSON.stringify(corrupt));
+    expect(loadGame()).toBeNull();
+  });
+
+  it('rejects saves with invalid phase', () => {
+    const corrupt = { ...baseSave, phase: 'INVALID_PHASE' };
+    localStorage.setItem('fairytales_save', JSON.stringify(corrupt));
     expect(loadGame()).toBeNull();
   });
 });
