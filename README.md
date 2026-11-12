@@ -57,6 +57,8 @@ npm run preview
 npm test
 ```
 
+`npm test` starts Vitest in watch mode. CI runs `npm run test:run` (`vitest run`) so the job exits.
+
 Unit tests cover: AI response parser, schema validators, phrase fallback extraction, scoring/combo utilities, and localStorage save/resume.
 
 ## Architecture highlights
