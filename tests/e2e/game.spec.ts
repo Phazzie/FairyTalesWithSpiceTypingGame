@@ -4,6 +4,7 @@ import { pickThemes, startGame, typingInput, currentPhrase, playChapter } from '
 test.describe('start screen', () => {
   test('needs exactly three themes before generating', async ({ page }) => {
     await page.goto('/');
+    await expect(page).toHaveTitle('Fairytales with Spice');
     const generate = page.getByRole('button', { name: /Generate My Story/ });
     await expect(generate).toBeDisabled();
     await pickThemes(page, ['Forbidden Love', 'Fated Mates']);
