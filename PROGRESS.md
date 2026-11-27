@@ -4,11 +4,11 @@
 
 **Fairytales with Spice: DONE** by the definition, with one caveat below.
 - **World:** you're the court reporter at *The People of Moonfall County v. Shiva, a wolf*. The romance is the testimony; every line you miss goes on the record as [INAUDIBLE], and a jury rules on what survived.
-- **Private preview:** https://fairytales-typing-game-git-claude-proj-a34dad-phazzies-projects.vercel.app (branch `claude/project-thread-eozle3`, PR #5, not merged).
+- **Private preview:** https://fairytales-typing-game-git-claude-proj-a34dad-phazzies-projects.vercel.app (branch `claude/project-thread-eozle3`). **Update:** PR #5 was merged to main on 27 Nov, so the courtroom version is now the live, public site at https://fairytales-typing-game.vercel.app.
 - **Honest score: 8/10.** The world runs every screen and the joke lands. It loses points because without your xAI key every trial is the same story, and on a phone it's playable but cramped.
 - **Still rough:** same story every time until `GROK_API_KEY` is set; phone play is tight with the keyboard up; margin line numbers are decorative and don't line up with every line of text.
 - **Boldest bit:** the "CONTAINS EXPLICIT TESTIMONY" stamp on the front page and the SEALED rating ("minors and grandmothers must leave"). This is the one that could embarrass you.
-- **Caveat on "nothing public":** the old pre-world version from earlier tonight is live and public at https://fairytales-typing-game.vercel.app. I left it alone rather than taking it down.
+- **Caveat on "nothing public":** the production site at https://fairytales-typing-game.vercel.app is public. Since PR #5 merged it serves the courtroom version.
 
 **What I tested by hand (laptop 1280px and iPhone 13 size, real Chromium):** filing with all four sections and exhibits; the refusal when fewer than three counts; All rise loading; typing lines (caught, wrong letters, Enter on a wrong line, the wolf reaching the door); OBJECTION! slam; recess by Escape and by leaving the tab; reconvene refocuses typing; adjourn and save, then reconvene from the start page with progress kept; all three days to the verdict; 3 misses produce exactly 3 [INAUDIBLE] marks on that day's transcript; certified transcript; mistrial when the server fails, and a retrial keeps your choices. No console errors, no sideways scroll on either size. Plus 69 unit tests and 13 end-to-end browser tests, all passing.
 
