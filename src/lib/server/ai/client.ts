@@ -10,6 +10,11 @@ function apiKey(): string | undefined {
   return env.XAI_API_KEY || env.GROK_API_KEY || undefined;
 }
 
+/** The xAI key. Vercel's xAI integration names it XAI_API_KEY; GROK_API_KEY is the older name. */
+function apiKey(): string | undefined {
+  return env.XAI_API_KEY || env.GROK_API_KEY || undefined;
+}
+
 /** True when an xAI key is configured. Without one, routes go straight to their fallback. */
 export function hasAIKey(): boolean {
   return !!apiKey();
