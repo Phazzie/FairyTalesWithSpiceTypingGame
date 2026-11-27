@@ -27,12 +27,12 @@ npm install
 
 | Variable | Description |
 |---|---|
-| `GROK_API_KEY` | xAI API key — **server-side only**, never exposed to the browser |
+| `XAI_API_KEY` | xAI API key (`GROK_API_KEY` also works) — **server-side only**, never exposed to the browser |
 
 Create a `.env` file in the project root:
 
 ```
-GROK_API_KEY=your_key_here
+XAI_API_KEY=your_key_here
 ```
 
 ## Developing
@@ -75,7 +75,7 @@ Unit tests cover: AI response parser, schema validators, phrase fallback extract
 
 ## What's still rough
 
-- **Without `GROK_API_KEY` every trial is the same built-in story** (Elara and Caden). The game works, but replays get repetitive. Add the key in Vercel to get a new story each time.
+- **Without `XAI_API_KEY` every trial is the same built-in story** (Elara and Caden). The game works, but replays get repetitive. Add the key in Vercel to get a new story each time.
 - The game needs a keyboard. It works on a phone with the on-screen keyboard, but it's cramped.
 - Line numbers in the margin are decorative; they don't line up exactly with every line of text the way real pleading paper does.
 - Accuracy on the verdict counts lines (phrases), while the transcript counts words lost. They can disagree slightly.

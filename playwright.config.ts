@@ -23,6 +23,6 @@ export default defineConfig({
     timeout: 180_000,
     // No API key: the server uses its built-in story and phrase fallback,
     // which keeps these tests deterministic and offline.
-    env: { GROK_API_KEY: '' },
+    env: { GROK_API_KEY: '', XAI_API_KEY: '' },
   },
 });
