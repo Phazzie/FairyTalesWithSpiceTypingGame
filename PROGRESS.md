@@ -1,5 +1,13 @@
 # PROGRESS: Fairytales with Spice (typing game)
 
+## Update, 27 Nov night: courtroom out, Steam in
+
+- Trizzy: the courtroom theme isn't sexy. Pitched three worlds (a late-night hotline, a letter you're writing, a steamed-up bathroom mirror) and picked **Steam**: the whole game is a fogged mirror at night, lit by one candle. You write the story into the steam; whatever you miss fogs back over.
+- Story steering is now the first thing on the page ("Tell the mirror what you want": three themes plus Her, Him, Where, What starts it). In the courtroom version the four details were hidden behind a collapsed "Exhibits" toggle. A new browser test checks all of it reaches the story writer.
+- Every feature kept: spice (water temperature), speed (how fast the fog comes back), resume, pause and tab-switch pause, saves, fogged transcript with word counts, final verdict, print.
+- Reviewed screenshots at laptop and iPhone size twice. Fixed: visible seams in the fog texture, a drop cap that swallowed a fogged marker, a miss cloud that blurred its own words, list text breaking around the [fogged over] chip, the heart doodle covering the brand line on phones.
+- 74 unit tests and 13 browser tests pass; type check clean; build clean.
+
 ## Update, 27 Nov evening: AI stories are live
 
 - The xAI key was saved in Vercel as `XAI_API_KEY`; the app only read `GROK_API_KEY`, so every trial was still the built-in story. Fixed (PR #7).

@@ -49,7 +49,7 @@ export function redactProse(prose: string, missedSegments: string[]): Transcript
 
   const parts: TranscriptPart[] = [];
   let pos = 0;
-  // Merge overlapping ranges so the whole union of missed testimony is struck.
+  // Merge overlapping ranges so the whole union of missed text is hidden.
   const merged: Array<[number, number]> = [];
   for (const [start, end] of ranges) {
     const last = merged[merged.length - 1];
@@ -79,11 +79,12 @@ export interface Verdict {
   detail: string;
 }
 
-/** The court's verdict on the reporter's accuracy across the whole trial. */
+/** What the mirror looks like after all three nights, by how much you kept. */
 export function verdictFor(accuracy: number): Verdict {
-  if (accuracy >= 100) return { ruling: 'GUILTY', detail: 'of being irresistible, on all counts. The record is flawless. The court is flustered.' };
-  if (accuracy >= 95) return { ruling: 'GUILTY', detail: 'of being irresistible, on all counts. The court is flustered.' };
-  if (accuracy >= 80) return { ruling: 'GUILTY', detail: 'on most counts. A few lines were lost to the heat of the moment.' };
-  if (accuracy >= 50) return { ruling: 'HUNG JURY', detail: 'Half the jury heard a love story. The other half heard [INAUDIBLE].' };
-  return { ruling: 'CASE DISMISSED', detail: 'for lack of a record. The defendant walks. The romance remains a rumor.' };
+  if (accuracy >= 100) return { ruling: 'CRYSTAL CLEAR', detail: 'Every word, every night, still on the glass. Nobody is getting out of this bathroom any time soon.' };
+  if (accuracy >= 95) return { ruling: 'CRYSTAL CLEAR', detail: 'A drop or two ran, but the whole thing is still there to read. Twice.' };
+  if (accuracy >= 80) return { ruling: 'STEAMY', detail: 'Most of it survived. A few lines were lost to the heat of the moment, which is fair.' };
+  if (accuracy >= 50) return { ruling: 'HAZY', detail: 'You can make out the shape of a love story. The good parts are under the fog.' };
+  return { ruling: 'FOGGED OVER', detail: 'The steam won. Whatever happened in here stays a rumor.' };
 }
+

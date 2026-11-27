@@ -1,6 +1,6 @@
 <script lang="ts">
   import { redactProse, type TranscriptPart } from '$lib/utils/transcript';
-  /** One chapter of the record, with missed testimony struck as [INAUDIBLE]. */
+  /** One chapter as it survived, with missed lines fogged back over. */
   export let prose: string;
   export let missedSegments: string[] = [];
 
@@ -26,13 +26,12 @@
 
 <div class="transcript">
   {#each paragraphs as parts}
-    <p>{#each parts as part}{#if part.inaudible}<span class="inaudible" title="{words(part.text)} words lost">[INAUDIBLE: {words(part.text)} words]</span>{:else}{part.text}{/if}{/each}</p>
+    <p>{#each parts as part}{#if part.inaudible}<span class="fogged" title="{words(part.text)} words lost to the steam">[fogged over: {words(part.text)} words]</span>{:else}{part.text}{/if}{/each}</p>
   {/each}
 </div>
 
 <style>
-  .transcript { font-size: 15px; }
-  p { margin: 0 0 var(--line); text-indent: 2.5em; white-space: pre-line; }
+  .transcript { font-size: 19px; line-height: 1.55; }
+  p { margin: 0 0 1em; white-space: pre-line; }
   p:last-child { margin-bottom: 0; }
-  .inaudible { text-indent: 0; }
 </style>
