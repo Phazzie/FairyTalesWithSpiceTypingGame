@@ -27,9 +27,10 @@
     style="left: {pct}%"
   >
     <!-- Phrase bubble above -->
+    <!-- Shift the bubble by the wolf's own track percentage so it never runs off either edge. -->
     {#if currentPhrase}
-      <div class="absolute bottom-14 left-1/2 -translate-x-1/2 whitespace-nowrap z-10">
-        <PhraseBubble text={currentPhrase} typedSoFar={typedSoFar} />
+      <div class="absolute bottom-14 left-1/2 w-max max-w-[85vw] z-10" style="transform: translateX(-{pct}%)">
+        <PhraseBubble text={currentPhrase} typedSoFar={typedSoFar} tailPct={pct} />
       </div>
     {/if}
 

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { callAI } from '$lib/server/ai/client';
+import { callAI, hasAIKey } from '$lib/server/ai/client';
 import { buildStoryPrompt, buildGradePrompt, buildRetryPrompt } from '$lib/server/ai/prompts';
 import { parseJson } from '$lib/server/ai/parser';
 import { validateStory, validateGradeReport } from '$lib/server/ai/validators';
@@ -29,7 +29,10 @@ export const POST: RequestHandler = async ({ request }) => {
   let lastStory: Story | null = null;
   let lastGrade: GradeReport | null = null;
 
-  for (let attempt = 1; attempt <= MAX_GEN_ATTEMPTS; attempt++) {
+  // No key configured: skip the doomed retries and serve the built-in story.
+  const attempts = hasAIKey() ? MAX_GEN_ATTEMPTS : 0;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       let prompt: string;
       if (attempt === 1 || !lastStory || !lastGrade) {
@@ -66,6 +69,6 @@ export const POST: RequestHandler = async ({ request }) => {
     story: FALLBACK_STORY,
     gradeReport: FALLBACK_GRADE,
     usedFallback: true,
-    attempts: MAX_GEN_ATTEMPTS,
+    attempts,
   });
 };

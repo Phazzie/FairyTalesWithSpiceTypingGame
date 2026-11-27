@@ -3,6 +3,9 @@
   import { score, bestCombo, chapterStats } from '$lib/stores/game';
   import { clearGame } from '$lib/utils/storage';
   import Button from '../ui/Button.svelte';
+  import { onMount } from 'svelte';
+
+  onMount(() => clearGame());
 
   $: totalCaught = $chapterStats.reduce((sum, s) => sum + s.caught, 0);
   $: totalMissed = $chapterStats.reduce((sum, s) => sum + s.missed, 0);

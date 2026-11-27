@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { createEventDispatcher, onMount, tick } from 'svelte';
+  import { matchPhrase } from '$lib/utils/scoring';
   import { isPaused, isRunning } from '$lib/stores/game';
 
   export let currentPhrase: string = '';
@@ -12,7 +13,7 @@
     dispatch('input', input);
 
     // Auto-submit if input matches phrase length
-    if (input.trim().toLowerCase() === currentPhrase.trim().toLowerCase()) {
+    if (matchPhrase(input, currentPhrase)) {
       dispatch('catch', input);
       input = '';
     }
@@ -20,7 +21,7 @@
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter') {
-      if (input.trim().toLowerCase() === currentPhrase.trim().toLowerCase()) {
+      if (matchPhrase(input, currentPhrase)) {
         dispatch('catch', input);
       } else {
         // Allow partial submit with enter
@@ -38,8 +39,9 @@
     inputEl?.focus();
   });
 
+  // Wait for the input to be re-enabled before focusing it (e.g. after Resume).
   $: if (!$isPaused && $isRunning) {
-    inputEl?.focus();
+    tick().then(() => inputEl?.focus());
   }
 </script>
 

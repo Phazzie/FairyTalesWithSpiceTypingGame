@@ -1,4 +1,5 @@
 import { COMBO_MULTIPLIERS, BASE_POINTS } from '../config';
+import { normalizeForMatch } from './typeable';
 
 export function calculatePoints(params: {
   speedConfig: { pixelsPerTick: number };
@@ -19,5 +20,5 @@ export function resetCombo(): number {
 }
 
 export function matchPhrase(input: string, target: string): boolean {
-  return input.trim().toLowerCase() === target.trim().toLowerCase();
+  return normalizeForMatch(input) === normalizeForMatch(target);
 }

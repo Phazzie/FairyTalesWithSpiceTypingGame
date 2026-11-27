@@ -62,7 +62,9 @@
     combo.set(newCombo);
     bestCombo.update(b => Math.max(b, newCombo));
     caughtIndices.update(arr => [...arr, idx]);
-    revealedSegments.update(segs => [...segs, phrase.proseSegment]);
+    revealedSegments.update(segs =>
+      segs.includes(phrase.proseSegment) ? segs : [...segs, phrase.proseSegment]
+    );
 
     shivaPosition.set(START_POSITION);
     typedSoFar = '';
@@ -174,8 +176,7 @@
       });
     }
     errorMessage.set('');
-    transitionTo('ERROR');
-    setTimeout(() => { transitionTo('START'); }, 100);
+    transitionTo('START');
   }
 
   onMount(() => {
@@ -218,7 +219,7 @@
 
 <div class="min-h-screen flex flex-col p-4 gap-4 max-w-4xl mx-auto">
   <!-- Header -->
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <div>
       <h2 class="text-lg font-bold text-purple-400">
         Chapter {$currentChapter} — {$story?.chapters[$currentChapter - 1]?.title ?? ''}
