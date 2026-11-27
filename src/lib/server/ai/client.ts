@@ -4,6 +4,11 @@ const GROK_URL = 'https://api.x.ai/v1/chat/completions';
 const MODEL = 'grok-3-mini';
 const TIMEOUT_MS = 30000;
 
+/** True when an xAI key is configured. Without one, routes go straight to their fallback. */
+export function hasAIKey(): boolean {
+  return !!env.GROK_API_KEY;
+}
+
 export async function callAI(prompt: string): Promise<string> {
   const apiKey = env.GROK_API_KEY;
   if (!apiKey) throw new Error('GROK_API_KEY not set');

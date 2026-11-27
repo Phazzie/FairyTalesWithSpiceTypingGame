@@ -1,4 +1,5 @@
 import type { Story, GradeReport, Phrase } from '../../types/domain';
+import { toTypeable } from '../../utils/typeable';
 
 export function validateStory(data: unknown): Story {
   if (!data || typeof data !== 'object') throw new Error('Story must be an object');
@@ -82,12 +83,15 @@ export function validatePhrases(data: unknown): Phrase[] {
     if (typeof p.proseSegment !== 'string' || !p.proseSegment.trim()) continue;
     if (typeof p.order !== 'number') continue;
 
-    // Validate 2-8 words
-    const wordCount = p.text.trim().split(/\s+/).length;
+    // Players must be able to type it: normalize dashes, curly quotes, etc.
+    const text = toTypeable(p.text);
+    const wordCount = text ? text.split(' ').length : 0;
     if (wordCount < 2 || wordCount > 8) continue;
 
-    valid.push(item as Phrase);
+    valid.push({ text, proseSegment: p.proseSegment.trim(), order: p.order });
   }
+
+  valid.sort((a, b) => a.order - b.order);
 
   if (valid.length < 12) throw new Error(`Not enough valid phrases: got ${valid.length}, need at least 12`);
   return valid;

@@ -11,10 +11,12 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "vitest",
-		"test:run": "vitest run && node --test scripts/ai-review.test.mjs"
+		"test:run": "vitest run && node --test scripts/ai-review.test.mjs",
+		"test:e2e": "playwright test"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.1",
+		"@playwright/test": "1.63.0",
+		"@sveltejs/adapter-vercel": "^6.3.5",
 		"@sveltejs/kit": "^2.57.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/typography": "^0.5.19",

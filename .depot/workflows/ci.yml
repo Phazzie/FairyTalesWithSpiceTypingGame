@@ -21,6 +21,20 @@ jobs:
       - run: npm run test:run
       - run: npm run build
 
+  e2e:
+    runs-on: depot-ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npx playwright install --with-deps chromium
+      # Builds, starts `vite preview` with no AI key (built-in story), and
+      # plays the game end to end in desktop and phone-sized Chromium.
+      - run: npm run test:e2e -- --trace off
+
   ai-review:
     if: github.event_name == 'pull_request'
     runs-on: depot-ubuntu-24.04

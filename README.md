@@ -59,6 +59,8 @@ npm test
 
 `npm test` starts Vitest in watch mode. CI runs `npm run test:run` (`vitest run`) so the job exits.
 
+End-to-end tests (`npm run test:e2e`, Playwright) build the app and play it in a real browser with no AI key: theme picking, a full three-chapter run, misses and combo breaks, pause/quit/resume, the error screen, and the phone layout.
+
 Unit tests cover: AI response parser, schema validators, phrase fallback extraction, scoring/combo utilities, and localStorage save/resume.
 
 ## Architecture highlights

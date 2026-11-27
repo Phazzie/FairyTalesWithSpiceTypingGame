@@ -29,7 +29,9 @@ Locked install, then this repo's real commands:
 
 There is no lint script and no ESLint or Prettier config. `npm run check` is the static check.
 
-There is no end-to-end or Playwright suite, so the workflow has no browser job.
+### `e2e`
+
+Installs Chromium with `npx playwright install --with-deps chromium`, then runs `npm run test:e2e` (`playwright test`). Playwright builds the app, serves it with `vite preview` with `GROK_API_KEY` blank so the built-in story and phrase fallback are used, and plays every screen in desktop and phone-sized Chromium. Tests live in `tests/e2e/`.
 
 ### `ai-review`
 

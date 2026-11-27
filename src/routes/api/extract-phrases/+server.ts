@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { callAI } from '$lib/server/ai/client';
+import { callAI, hasAIKey } from '$lib/server/ai/client';
 import { buildPhrasePrompt } from '$lib/server/ai/prompts';
 import { parseJson } from '$lib/server/ai/parser';
 import { validatePhrases } from '$lib/server/ai/validators';
@@ -18,6 +18,10 @@ export const POST: RequestHandler = async ({ request }) => {
   const { chapterProse } = body;
   if (!chapterProse || typeof chapterProse !== 'string') {
     return json({ error: 'chapterProse is required' }, { status: 400 });
+  }
+
+  if (!hasAIKey()) {
+    return json({ phrases: extractPhrasesFallback(chapterProse), usedFallback: true });
   }
 
   try {

@@ -10,13 +10,15 @@
   import type { SpiceLevel, SpeedSetting } from '$lib/types/domain';
   import { START_POSITION } from '$lib/config';
 
-  let spiceLevel: SpiceLevel = 3;
-  let speedSetting: SpeedSetting = 'normal';
-  let selectedThemes: string[] = [];
-  let characterIdea = '';
-  let loveInterestIdea = '';
-  let setting = '';
-  let plotHook = '';
+  // Start from the last settings used, so "Try Again" after an error keeps your picks.
+  const previous = $settings;
+  let spiceLevel: SpiceLevel = previous?.spiceLevel ?? 3;
+  let speedSetting: SpeedSetting = previous?.speedSetting ?? 'normal';
+  let selectedThemes: string[] = previous?.selectedThemes ? [...previous.selectedThemes] : [];
+  let characterIdea = previous?.characterIdea ?? '';
+  let loveInterestIdea = previous?.loveInterestIdea ?? '';
+  let setting = previous?.setting ?? '';
+  let plotHook = previous?.plotHook ?? '';
   let showCustomize = false;
   let savedState = false;
 
