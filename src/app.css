@@ -1,139 +1,152 @@
 @import "tailwindcss";
 
 /*
- * World: a court reporter's desk. Everything is pleading paper, Courier
- * testimony, Caslon court headings and rubber stamps. The paper never goes
- * dark; the desk around it is walnut.
+ * World: a bathroom mirror at night, fogged by a hot shower. The room is dark
+ * teal tile lit by one candle. Every surface you read is the mirror's steam;
+ * every word on it was wiped through the fog with a fingertip, so it shows the
+ * dark room behind. Whatever you miss, the steam takes back.
  */
 :root {
-  color-scheme: light;
-  --desk: #241d17;
-  --desk-2: #2f261e;
-  --paper: #f5f0e1;
-  --paper-edge: #e7dfc8;
-  --ink: #1d1b16;
-  --ink-soft: #57524a;
-  --ink-faint: #8d8676;
-  --rule: #b3261e;
-  --stamp-red: #b8212b;
-  --stamp-blue: #26428f;
-  --highlight: #fff1a8;
-  --line: 28px;
-  --font-court: "Libre Caslon Text", "Georgia", serif;
-  --font-steno: "Courier Prime", "Courier New", monospace;
-  --font-sign: "Mrs Saint Delafield", cursive;
+  color-scheme: dark;
+  --tile: #0c1619;
+  --tile-2: #12232a;
+  --grout: #071013;
+  --fog: #d6dfe0;
+  --fog-2: #c3cfd1;
+  --fog-deep: #aab8bb;
+  --wiped: #13232a;          /* the dark room seen through a wiped line */
+  --wiped-soft: #3e5258;
+  --wiped-faint: #74878b;
+  --candle: #f4b26a;
+  --candle-glow: rgba(244, 178, 106, 0.35);
+  --rose: #c2536b;
+  --rose-soft: #e58a9a;
+  --brass: #b38a4a;
+  --brass-dark: #6e5229;
+  --font-finger: "Nothing You Could Do", "Segoe Print", cursive;
+  --font-prose: "Cormorant Garamond", "Georgia", serif;
+  --font-label: "Jost", "Helvetica Neue", sans-serif;
+  /* Fog texture: soft fractal noise. */
+  --fog-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.0125' numOctaves='4' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='240' height='240' filter='url(%23f)'/></svg>");
+  /* Condensation: scattered droplets with a highlight. */
+  --droplets: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='220'><g fill='rgba(19,35,42,0.16)'><circle cx='14' cy='22' r='2.2'/><circle cx='61' cy='9' r='1.4'/><circle cx='120' cy='40' r='2.8'/><circle cx='160' cy='14' r='1.2'/><circle cx='88' cy='96' r='1.8'/><circle cx='34' cy='140' r='3'/><circle cx='150' cy='120' r='1.6'/><circle cx='110' cy='180' r='2.4'/><circle cx='8' cy='200' r='1.3'/><circle cx='70' cy='206' r='1.1'/></g><g fill='rgba(255,255,255,0.7)'><circle cx='13.3' cy='21.2' r='0.8'/><circle cx='119' cy='39' r='1'/><circle cx='33' cy='139' r='1.1'/><circle cx='109.2' cy='179.2' r='0.9'/></g></svg>");
 }
 
-html { background: var(--desk); }
+html { background: var(--tile); }
 
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--ink);
-  font-family: var(--font-steno);
-  background-color: var(--desk);
+  color: var(--fog);
+  font-family: var(--font-prose);
+  font-size: 18px;
+  background-color: var(--tile);
+  /* Square tile with dark grout, warmed by a candle at the bottom. */
   background-image:
-    repeating-linear-gradient(92deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 9px),
-    repeating-linear-gradient(88deg, rgba(0,0,0,0.12) 0 1px, transparent 1px 23px),
-    radial-gradient(ellipse at 50% -10%, #3b3026 0%, var(--desk) 60%);
+    radial-gradient(ellipse 70% 45% at 50% 105%, rgba(244,178,106,0.22), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(80,130,140,0.18), transparent 60%),
+    linear-gradient(var(--grout) 0 2px, transparent 2px),
+    linear-gradient(90deg, var(--grout) 0 2px, transparent 2px),
+    linear-gradient(135deg, var(--tile-2), var(--tile));
+  background-size: 100% 100%, 100% 100%, 64px 64px, 64px 64px, 100% 100%;
 }
 
-.font-court { font-family: var(--font-court); }
-.font-steno { font-family: var(--font-steno); }
-.font-sign { font-family: var(--font-sign); }
+.font-finger { font-family: var(--font-finger); }
+.font-prose { font-family: var(--font-prose); }
+.font-label { font-family: var(--font-label); }
 
-/* A sheet of pleading paper: numbered left gutter, double red rule, single right rule. */
-.paper {
+/* The mirror: brass frame, fogged glass, droplets, a lighter bloom where the steam is thickest. */
+.mirror {
   position: relative;
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: 0 1px 0 var(--paper-edge), 0 18px 40px -12px rgba(0,0,0,0.65), 0 2px 6px rgba(0,0,0,0.35);
-  padding: calc(var(--line) * 1.5) 28px calc(var(--line) * 1.5) 74px;
-  line-height: var(--line);
-  overflow: hidden;
-}
-.paper::before {
-  content: "1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 10\A 11\A 12\A 13\A 14\A 15\A 16\A 17\A 18\A 19\A 20\A 21\A 22\A 23\A 24\A 25\A 26\A 27\A 28\A 29\A 30\A 31\A 32\A 33\A 34\A 35\A 36\A 37\A 38\A 39\A 40\A 41\A 42\A 43\A 44\A 45\A 46\A 47\A 48\A 49\A 50\A 51\A 52\A 53\A 54\A 55\A 56\A 57\A 58\A 59\A 60\A 61\A 62\A 63\A 64\A 65\A 66\A 67\A 68\A 69\A 70\A 71\A 72\A 73\A 74\A 75\A 76\A 77\A 78\A 79\A 80\A 81\A 82\A 83\A 84\A 85\A 86\A 87\A 88\A 89\A 90\A 91\A 92\A 93\A 94\A 95\A 96\A 97\A 98\A 99\A 100\A 101\A 102\A 103\A 104\A 105\A 106\A 107\A 108\A 109\A 110\A 111\A 112\A 113\A 114\A 115\A 116\A 117\A 118\A 119\A 120";
-  white-space: pre;
-  position: absolute;
-  top: calc(var(--line) * 1.5);
-  left: 0;
-  width: 44px;
-  text-align: right;
-  font-family: var(--font-steno);
-  font-size: 12px;
-  line-height: var(--line);
-  color: var(--ink-faint);
-  pointer-events: none;
-}
-.paper::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 54px;
-  width: 4px;
-  border-left: 1px solid var(--rule);
-  border-right: 1px solid var(--rule);
-  pointer-events: none;
-}
-.paper > .right-rule {
-  position: absolute; inset: 0 14px 0 auto; width: 0;
-  border-right: 1px solid color-mix(in srgb, var(--rule) 55%, transparent);
-  pointer-events: none;
+  color: var(--wiped);
+  background-color: var(--fog);
+  background-image:
+    var(--droplets),
+    var(--fog-noise),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(244,178,106,0.28), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 100% 0%, rgba(229,138,154,0.18), transparent 70%),
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.55), transparent 55%),
+    linear-gradient(170deg, #e2e9ea, var(--fog-2) 60%, var(--fog-deep));
+  background-size: 180px 220px, 240px 240px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  border-radius: 22px;
+  padding: 34px 32px;
+  box-shadow:
+    0 0 0 6px var(--brass),
+    0 0 0 8px var(--brass-dark),
+    0 0 0 9px rgba(255,255,255,0.06),
+    0 30px 60px -20px rgba(0,0,0,0.85),
+    0 0 80px -10px var(--candle-glow);
 }
 @media (max-width: 520px) {
-  .paper { padding-left: 44px; padding-right: 18px; }
-  .paper::before { width: 26px; font-size: 10px; }
-  .paper::after { left: 32px; width: 3px; }
-  .paper > .right-rule { right: 8px; }
+  .mirror { padding: 24px 18px; border-radius: 16px; box-shadow: 0 0 0 4px var(--brass), 0 0 0 5px var(--brass-dark), 0 20px 40px -16px rgba(0,0,0,0.85), 0 0 60px -10px var(--candle-glow); }
 }
 
-/* Court-style buttons: ink boxes, all caps. */
-.btn {
-  font-family: var(--font-steno);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+/* A line wiped through the steam with a fingertip. */
+.wipe {
+  font-family: var(--font-finger);
+  color: var(--wiped);
+  text-shadow: 0 0 1px rgba(19,35,42,0.6), 0 0 6px rgba(255,255,255,0.7);
+  letter-spacing: 0.01em;
+}
+
+/* Small letterspaced labels, like etched glass. */
+.etch {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  font-size: 15px;
+  color: var(--wiped-soft);
+}
+
+/* Buttons: a swipe across the glass. Primary glows with candlelight. */
+.btn {
+  font-family: var(--font-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 14px;
   line-height: 1.2;
-  padding: 12px 18px;
-  border: 2px solid var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  padding: 14px 24px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, #f8c584, var(--candle) 55%, #e0894f);
+  color: #2a1608;
+  box-shadow: 0 8px 24px -8px rgba(224,137,79,0.7), inset 0 1px 0 rgba(255,255,255,0.5);
   cursor: pointer;
-  transition: transform 0.08s ease, background 0.15s ease;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
-.btn:hover:not(:disabled) { background: #000; transform: translateY(-1px); }
+.btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 12px 30px -8px rgba(224,137,79,0.85), inset 0 1px 0 rgba(255,255,255,0.5); }
 .btn:active:not(:disabled) { transform: translateY(1px); }
-.btn:focus-visible { outline: 3px solid var(--stamp-blue); outline-offset: 2px; }
-.btn:disabled { cursor: not-allowed; background: transparent; color: var(--ink-faint); border-color: var(--ink-faint); border-style: dashed; }
-.btn-ghost { background: transparent; color: var(--ink); }
-.btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,0.06); }
-.btn-desk { background: var(--paper); color: var(--ink); border-color: var(--paper); }
-.btn-desk:hover:not(:disabled) { background: #fff; }
+.btn:focus-visible { outline: 3px solid var(--rose-soft); outline-offset: 3px; }
+.btn:disabled { cursor: not-allowed; background: transparent; color: var(--wiped-faint); border: 1px dashed var(--wiped-faint); box-shadow: none; }
+.btn-ghost { background: rgba(19,35,42,0.06); color: var(--wiped); border-color: rgba(19,35,42,0.35); box-shadow: none; }
+.btn-ghost:hover:not(:disabled) { background: rgba(19,35,42,0.12); box-shadow: none; }
+.btn-desk { background: transparent; color: var(--fog); border-color: rgba(214,223,224,0.5); box-shadow: none; }
+.btn-desk:hover:not(:disabled) { background: rgba(214,223,224,0.1); box-shadow: none; }
 
-/* Form check box like a printed court form. */
-.box {
-  display: inline-grid; place-items: center;
-  width: 18px; height: 18px; flex: none;
-  border: 1.5px solid var(--ink);
-  font-weight: 700; font-size: 15px; line-height: 1;
-  background: #fffdf6;
+/* A line the steam took back. */
+.fogged {
+  font-family: var(--font-label);
+  font-size: 0.72em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wiped-faint);
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 0 10px 6px rgba(255,255,255,0.55);
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  filter: blur(0.3px);
 }
 
-/* Missed testimony in the record. */
-.inaudible {
-  font-family: var(--font-steno);
-  font-weight: 700;
-  font-size: 0.85em;
-  letter-spacing: 0.04em;
-  color: var(--stamp-red);
-  background: repeating-linear-gradient(-45deg, rgba(184,33,43,0.08) 0 6px, rgba(184,33,43,0.14) 6px 12px);
-  padding: 1px 4px;
-  white-space: nowrap;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 @media print {
-  html, body { background: #fff !important; }
+  html, body { background: #fff !important; color: #000 !important; }
   .no-print { display: none !important; }
-  .paper { box-shadow: none !important; }
+  .mirror { box-shadow: none !important; background: #fff !important; }
 }

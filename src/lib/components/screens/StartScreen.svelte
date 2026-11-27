@@ -9,11 +9,8 @@
   import { loadGame } from '$lib/utils/storage';
   import type { SpiceLevel, SpeedSetting } from '$lib/types/domain';
   import { START_POSITION } from '$lib/config';
-  import CourtCaption from '../ui/CourtCaption.svelte';
-  import Stamp from '../ui/Stamp.svelte';
-  import { courtDate } from '$lib/court';
-
-  const filedOn = courtDate();
+  import MirrorTitle from '../ui/MirrorTitle.svelte';
+  import { NIGHT_WORDS } from '$lib/steam';
 
   // Start from the last settings used, so "Try Again" after an error keeps your picks.
   const previous = $settings;
@@ -24,7 +21,6 @@
   let loveInterestIdea = previous?.loveInterestIdea ?? '';
   let setting = previous?.setting ?? '';
   let plotHook = previous?.plotHook ?? '';
-  let showCustomize = false;
   let savedState = false;
   let savedDay = 1;
 
@@ -56,7 +52,7 @@
 
     try {
       transitionTo('GENERATING');
-      loadingMessage.set('The witness is being sworn in');
+      loadingMessage.set('Running the water');
 
       const genRes = await fetch('/api/generate-story', {
         method: 'POST',
@@ -67,15 +63,15 @@
         }),
       });
 
-      if (!genRes.ok) throw new Error('The witness could not be sworn in (story generation failed).');
+      if (!genRes.ok) throw new Error('The water never got hot (the story could not be written).');
       const genData = await genRes.json();
       story.set(genData.story);
 
       transitionTo('GRADING');
-      loadingMessage.set('The jury is reviewing the testimony');
+      loadingMessage.set('Waiting for the glass to fog');
 
       transitionTo('EXTRACTING');
-      loadingMessage.set('The clerk is cutting the stenograph tape');
+      loadingMessage.set('Breathing on the mirror');
 
       const extractRes = await fetch('/api/extract-phrases', {
         method: 'POST',
@@ -83,7 +79,7 @@
         body: JSON.stringify({ chapterProse: genData.story.chapters[0].prose }),
       });
 
-      if (!extractRes.ok) throw new Error('The clerk could not cut the stenograph tape (phrase extraction failed).');
+      if (!extractRes.ok) throw new Error('The mirror would not fog (the lines could not be prepared).');
       const extractData = await extractRes.json();
       phrases.set(extractData.phrases);
       phraseStartTime.set(Date.now());
@@ -120,126 +116,109 @@
 </script>
 
 <div class="wrap">
-  <article class="paper sheet" aria-labelledby="notice-title">
-    <div class="right-rule"></div>
+  <article class="mirror sheet" aria-labelledby="steam-title">
+    <span id="steam-title" class="sr-only">Steam: Fairytales with Spice</span>
+    <MirrorTitle line="Fairytales with Spice" />
 
-    <div class="filed" aria-hidden="true">
-      <Stamp tone="blue" rotate={7} size="sm">Filed<br />{filedOn}<br />Clerk of Court</Stamp>
-    </div>
-
-    <CourtCaption title="Notice of appointment of court reporter; schedule of proceedings" />
-
-    <h1 id="notice-title" class="font-court headline">
-      <span class="kicker">In re</span>
-      Fairytales with Spice
-      <span class="sub">a werewolf romance, taken down word for word, by you</span>
-    </h1>
-    <div class="explicit" aria-hidden="true">
-      <Stamp tone="red" rotate={-9} size="md">{spiceLevel >= 5 ? 'Sealed: explicit testimony' : spiceLevel >= 3 ? 'Contains explicit testimony' : 'Testimony may cause blushing'}</Stamp>
-    </div>
-
-    <section class="notice">
-      <p><strong>TO THE COURT REPORTER:</strong></p>
-      <ol>
-        <li>You are appointed to take down the testimony in this matter. Trial runs three (3) days.</li>
-        <li>Each line of testimony comes off the stenograph tape. Type it before the defendant reaches the courtroom door.</li>
-        <li>Lines you take down enter the record. Lines you miss enter the record as <span class="inaudible">[INAUDIBLE]</span>.</li>
-        <li>At the close of trial you certify the transcript, and the jury rules on how much of the romance survived.</li>
-      </ol>
-    </section>
+    <ol class="how">
+      <li><span class="n">1</span><span>Tell the mirror what you want. It writes you a story in three nights.</span></li>
+      <li><span class="n">2</span><span>Each line appears through the steam. Trace it with your fingertips (type it) before the fog takes it back.</span></li>
+      <li><span class="n">3</span><span>Whatever you miss is <span class="fogged">[fogged over]</span> for good. At the end, see how much of the night survived.</span></li>
+    </ol>
 
     {#if savedState}
-      <section class="docket" data-testid="resume">
-        <div>
-          <strong>ON THE DOCKET:</strong> an adjourned session of this case, Day {savedDay} of 3.
-          <span class="sr-only">You have a saved game</span>
-        </div>
-        <Button variant="secondary" on:click={resumeGame}>Reconvene</Button>
+      <section class="resume" data-testid="resume">
+        <p><span class="wipe">Still steamy in here.</span> You left on Night {NIGHT_WORDS[savedDay] ?? savedDay} of three.
+          <span class="sr-only">You have a saved game</span></p>
+        <Button variant="secondary" on:click={resumeGame}>Pick up where you left off</Button>
       </section>
     {/if}
 
-    <section class="schedule">
-      <h2 class="font-court">Schedule of proceedings</h2>
+    <section class="block steer" aria-labelledby="steer-title">
+      <h2 id="steer-title" class="wipe">Tell the mirror what you want</h2>
+      <p class="hint">This steers the whole story. Pick three, then add as much or as little as you like.</p>
 
       <fieldset>
-        <legend>A. Rating of the proceedings</legend>
+        <legend class="etch">Write three things on the glass</legend>
+        <ThemeGrid bind:selected={selectedThemes} on:change={e => selectedThemes = e.detail} />
+      </fieldset>
+
+      <fieldset class="details">
+        <legend class="etch">Whisper the details <span class="opt">optional</span></legend>
+        <div class="grid">
+          <label>
+            <span>Her</span>
+            <input id="characterIdea" bind:value={characterIdea} type="text" maxlength="100" placeholder="a botanist who studies rare plants" />
+          </label>
+          <label>
+            <span>Him</span>
+            <input id="loveInterestIdea" bind:value={loveInterestIdea} type="text" maxlength="100" placeholder="a brooding pack alpha with a secret" />
+          </label>
+          <label>
+            <span>Where</span>
+            <input id="setting" bind:value={setting} type="text" maxlength="100" placeholder="a remote mountain research station" />
+          </label>
+          <label>
+            <span>What starts it</span>
+            <input id="plotHook" bind:value={plotHook} type="text" maxlength="150" placeholder="she holds a key the pack has been searching for" />
+          </label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <fieldset>
+        <legend class="etch">How hot is the water</legend>
         <SpiceSelector bind:value={spiceLevel} on:change={e => spiceLevel = e.detail as SpiceLevel} />
       </fieldset>
 
       <fieldset>
-        <legend>B. Rate of speech</legend>
+        <legend class="etch">How fast the fog comes back</legend>
         <SpeedSelector bind:value={speedSetting} on:change={e => speedSetting = e.detail as SpeedSetting} />
-      </fieldset>
-
-      <fieldset>
-        <legend>C. Counts charged against the defendant <span class="req">(choose exactly three)</span></legend>
-        <ThemeGrid bind:selected={selectedThemes} on:change={e => selectedThemes = e.detail} />
-      </fieldset>
-
-      <fieldset>
-        <legend>
-          <button type="button" class="exhibits-toggle" aria-expanded={showCustomize} on:click={() => showCustomize = !showCustomize}>
-            D. Exhibits <span class="req">(optional)</span> <span aria-hidden="true">{showCustomize ? '−' : '+'}</span>
-          </button>
-        </legend>
-        {#if showCustomize}
-          <div class="exhibits">
-            <label for="characterIdea">Exhibit A. The protagonist</label>
-            <input id="characterIdea" bind:value={characterIdea} type="text" maxlength="100" placeholder="a botanist who studies rare plants" />
-            <label for="loveInterestIdea">Exhibit B. The love interest</label>
-            <input id="loveInterestIdea" bind:value={loveInterestIdea} type="text" maxlength="100" placeholder="a brooding pack alpha with a secret" />
-            <label for="setting">Exhibit C. The scene</label>
-            <input id="setting" bind:value={setting} type="text" maxlength="100" placeholder="a remote mountain research station" />
-            <label for="plotHook">Exhibit D. The motive</label>
-            <input id="plotHook" bind:value={plotHook} type="text" maxlength="150" placeholder="she holds a key the pack has been searching for" />
-          </div>
-        {/if}
       </fieldset>
     </section>
 
     <div class="submit">
       <Button disabled={selectedThemes.length !== 3} on:click={generate}>
-        File and call the first witness
+        Turn on the water
       </Button>
       {#if selectedThemes.length !== 3}
-        <p class="refusal">The clerk will not accept a filing with fewer than three counts.</p>
+        <p class="refusal">Write three things on the glass first ({3 - selectedThemes.length} to go).</p>
+      {:else}
+        <p class="ready">Lock the door. It takes about a minute to steam up.</p>
       {/if}
     </div>
-
-    <footer class="page-foot">NOTICE OF APPOINTMENT · PAGE 1 OF 1</footer>
   </article>
 
-  <p class="credit">Fairytales with Spice is a Skeptical Wombat production. Game by Phazzie.</p>
+  <p class="credit">Fairytales with Spice is a Skeptical Wombat production. Game by Phazzie. Adults only.</p>
 </div>
 
 <style>
-  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 12px 40px; }
-  .sheet { font-size: 15px; }
-  .filed { position: absolute; top: 18px; right: 26px; z-index: 1; }
-  .headline { margin: calc(var(--line) * 1.2) 0 var(--line); text-align: center; font-size: clamp(30px, 6vw, 46px); line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; }
-  .kicker { display: block; font-size: 15px; font-style: italic; font-weight: 400; letter-spacing: 0.04em; margin-bottom: 6px; color: var(--ink-soft); }
-  .sub { display: block; font-size: 16px; font-style: italic; font-weight: 400; margin-top: 10px; color: var(--ink-soft); }
-  .explicit { text-align: center; margin: -6px 0 var(--line); }
-  .notice ol { margin: 0; padding-left: 2.2em; list-style: decimal; }
-  .notice li { margin: 0 0 4px; }
-  .notice p { margin: 0 0 4px; }
-  .docket { margin: var(--line) 0 0; padding: 10px 14px; background: var(--highlight); border: 1px dashed var(--ink); display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .schedule h2 { text-align: center; text-transform: uppercase; letter-spacing: 0.12em; font-size: 15px; margin: calc(var(--line) * 1.2) 0 10px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 4px 0; }
-  fieldset { border: none; margin: 0 0 18px; padding: 0; min-width: 0; }
-  legend { font-weight: 700; margin-bottom: 6px; padding: 0; }
-  .req { font-weight: 400; color: var(--ink-soft); }
-  .exhibits-toggle { background: none; border: none; padding: 0; font: inherit; font-weight: 700; color: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-  .exhibits { display: grid; gap: 2px; margin-top: 6px; }
-  .exhibits label { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
-  .exhibits input { font: inherit; background: transparent; border: none; border-bottom: 1px solid var(--ink); padding: 4px 0; color: var(--ink); outline: none; }
-  .exhibits input::placeholder { color: var(--ink-faint); font-style: italic; }
-  .exhibits input:focus { background: var(--highlight); }
-  .submit { margin-top: var(--line); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-  .refusal { margin: 0; font-size: 13px; color: var(--stamp-red); font-style: italic; }
-  .page-foot { margin-top: calc(var(--line) * 1.5); text-align: center; font-size: 11px; letter-spacing: 0.14em; color: var(--ink-soft); }
-  .credit { text-align: center; color: #b9ab93; font-size: 13px; margin-top: 22px; font-family: var(--font-court); font-style: italic; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 36px 16px 48px; }
+  .how { list-style: none; margin: 26px auto 0; padding: 0; max-width: 560px; display: grid; gap: 8px; font-size: 18px; line-height: 1.4; }
+  .how li { display: flex; gap: 12px; align-items: baseline; }
+  .n { font-family: var(--font-finger); color: var(--rose); font-size: 22px; flex: none; width: 16px; }
+  .resume { margin: 24px 0 0; padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,0.4); border: 1px dashed rgba(19,35,42,0.35);
+    display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .resume p { margin: 0; }
+  .resume .wipe { font-size: 22px; margin-right: 6px; }
+  .block { margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(19,35,42,0.15); }
+  .steer h2 { margin: 0; font-size: clamp(28px, 6vw, 38px); font-weight: 400; line-height: 1.1; color: var(--rose); text-shadow: 0 0 1px rgba(194,83,107,0.5), 0 0 8px rgba(255,255,255,0.8); }
+  .hint { margin: 6px 0 18px; font-style: italic; color: var(--wiped-soft); }
+  fieldset { border: none; margin: 0 0 22px; padding: 0; min-width: 0; }
+  fieldset:last-child { margin-bottom: 0; }
+  legend { padding: 0; margin-bottom: 10px; }
+  .opt { color: var(--wiped-faint); letter-spacing: 0.12em; margin-left: 6px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .grid label { display: flex; flex-direction: column; gap: 2px; }
+  .grid label span { font-family: var(--font-finger); font-size: 19px; color: var(--wiped); }
+  .grid input { font: inherit; font-size: 18px; background: rgba(255,255,255,0.35); border: 1px solid rgba(19,35,42,0.15); border-radius: 12px; padding: 8px 12px; color: var(--wiped); outline: none; transition: background 0.2s ease; }
+  .grid input::placeholder { color: var(--wiped-faint); font-style: italic; }
+  .grid input:focus { background: rgba(255,255,255,0.7); border-color: var(--rose); }
+  .submit { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  .refusal { margin: 0; font-size: 16px; color: var(--rose); font-style: italic; }
+  .ready { margin: 0; font-size: 16px; color: var(--wiped-soft); font-style: italic; }
+  .credit { text-align: center; color: rgba(214,223,224,0.5); font-size: 14px; margin-top: 30px; font-style: italic; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  @media (max-width: 520px) {
-    .filed { position: static; display: flex; justify-content: flex-end; margin: -6px 0 10px; }
-  }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
 </style>

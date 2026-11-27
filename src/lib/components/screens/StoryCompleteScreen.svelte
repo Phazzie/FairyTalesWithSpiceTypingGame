@@ -3,10 +3,9 @@
   import { score, bestCombo, chapterStats, transcript } from '$lib/stores/game';
   import { clearGame } from '$lib/utils/storage';
   import { verdictFor } from '$lib/utils/transcript';
-  import { courtDate, fee, DAY_WORDS } from '$lib/court';
+  import { heat, NIGHT_WORDS } from '$lib/steam';
   import Button from '../ui/Button.svelte';
-  import Stamp from '../ui/Stamp.svelte';
-  import CourtCaption from '../ui/CourtCaption.svelte';
+  import Wipe from '../ui/Wipe.svelte';
   import Transcript from '../game/Transcript.svelte';
   import { onMount } from 'svelte';
 
@@ -16,7 +15,6 @@
   $: totalPhrases = $chapterStats.reduce((sum, s) => sum + s.total, 0);
   $: accuracy = totalPhrases > 0 ? Math.round((totalCaught / totalPhrases) * 100) : 0;
   $: verdict = verdictFor(accuracy);
-  const today = courtDate();
 
   function missedFor(n: number) {
     return $transcript.find(r => r.chapter === n)?.missedSegments ?? [];
@@ -29,87 +27,69 @@
 </script>
 
 <div class="wrap">
-  <article class="paper sheet">
-    <div class="right-rule"></div>
-    <CourtCaption title="Reporter's certified transcript of proceedings, Days One through Three" />
-
+  <article class="mirror sheet">
     <section class="verdict" aria-labelledby="verdict-title">
-      <p class="label">The jury, having heard the record as taken, finds the defendant</p>
-      <div class="ruling">
-        <Stamp tone={verdict.ruling === 'GUILTY' ? 'red' : 'ink'} rotate={-5} size="xl">{verdict.ruling}</Stamp>
-      </div>
-      <p class="detail">{verdict.detail}</p>
       <h1 id="verdict-title" class="sr-only">Your Story is Complete!</h1>
+      <p class="etch">Three nights later, the mirror is</p>
+      <div class="ruling"><Wipe tag="p" size="xl">{verdict.ruling}</Wipe></div>
+      <p class="detail">{verdict.detail}</p>
     </section>
 
-    <table class="tally">
-      <tbody>
-        <tr><th scope="row">Reporter's fee</th><td>{fee($score)}</td></tr>
-        <tr><th scope="row">Accuracy of the record</th><td><strong>{accuracy}%</strong></td></tr>
-        <tr><th scope="row">Longest unbroken run</th><td>{$bestCombo} lines</td></tr>
-      </tbody>
-    </table>
+    <dl class="tally" aria-label="Your nights">
+      <div><dt>Heat</dt><dd>{heat($score)}</dd></div>
+      <div><dt>Still readable</dt><dd>{accuracy}%</dd></div>
+      <div><dt>Longest streak</dt><dd>{$bestCombo}</dd></div>
+    </dl>
 
     {#if $story}
-      <h2 class="section font-court">Appearances</h2>
-      <p class="appear">For the heart: <strong>{$story.metadata.characterNames.protagonist}</strong>. For the pack: <strong>{$story.metadata.characterNames.alpha}</strong>, Alpha.</p>
-      <p class="appear"><span class="who">STATEMENT OF THE CASE:</span> {$story.metadata.storyArc}</p>
+      <p class="cast">
+        <span class="wipe">{$story.metadata.characterNames.protagonist}</span>
+        <span class="amp">&amp;</span>
+        <span class="wipe">{$story.metadata.characterNames.alpha}</span>
+      </p>
+      <p class="arc">{$story.metadata.storyArc}</p>
 
       {#each $story.chapters as chapter}
-        <h2 class="section font-court">Day {DAY_WORDS[chapter.number]}: {chapter.title}</h2>
-        <h3 class="sr-only">Chapter {chapter.number}: {chapter.title}</h3>
-        <Transcript prose={chapter.prose} missedSegments={missedFor(chapter.number)} />
-        {#if chapter.cliffhanger}
-          <p class="cliff"><em>"{chapter.cliffhanger}"</em></p>
-        {/if}
+        <section class="night">
+          <p class="etch">Night {NIGHT_WORDS[chapter.number]}</p>
+          <h2 class="wipe">{chapter.title}</h2>
+          <h3 class="sr-only">Chapter {chapter.number}: {chapter.title}</h3>
+          <Transcript prose={chapter.prose} missedSegments={missedFor(chapter.number)} />
+          {#if chapter.cliffhanger}
+            <p class="cliff">"{chapter.cliffhanger}"</p>
+          {/if}
+        </section>
       {/each}
     {/if}
 
-    <section class="certificate">
-      <h2 class="section font-court">Reporter's certificate</h2>
-      <p>I, the undersigned court reporter, certify that the foregoing is a true and correct transcript of the proceedings in this matter, taken down by me at the speed of the witness, except where marked <span class="inaudible">[INAUDIBLE]</span>.</p>
-      <div class="sign">
-        <div>
-          <div class="date">Dated: {today}</div>
-        </div>
-        <div class="sig">
-          <span class="font-sign scrawl">The Reporter</span>
-          <div class="sig-line">Certified Shorthand Reporter</div>
-        </div>
-      </div>
-      <div class="cert-stamp" aria-hidden="true">
-        <Stamp tone="blue" rotate={8} size="md">Certified true<br />and correct copy</Stamp>
-      </div>
-    </section>
+    <p class="signoff">Whatever you see marked <span class="fogged">[fogged over]</span> is gone. The steam keeps its secrets.</p>
 
     <div class="actions no-print">
-      <Button variant="secondary" on:click={() => window.print()}>Print the transcript</Button>
-      <Button on:click={startNew}>File a new case</Button>
+      <Button variant="secondary" on:click={() => window.print()}>Print what's left</Button>
+      <Button on:click={startNew}>Run another shower</Button>
     </div>
   </article>
 </div>
 
 <style>
-  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 12px 40px; }
-  .verdict { text-align: center; margin: calc(var(--line) * 1.5) 0 var(--line); }
-  .label { margin: 0; font-style: italic; color: var(--ink-soft); }
-  .ruling { margin: 18px 0 14px; }
-  .detail { margin: 0 auto; max-width: 30em; }
-  .tally { width: 100%; border-collapse: collapse; margin: 0 0 var(--line); }
-  .tally th { text-align: left; font-weight: 400; padding: 0; border-bottom: 1px dotted var(--ink-faint); }
-  .tally td { text-align: right; padding: 0; border-bottom: 1px dotted var(--ink-faint); font-variant-numeric: tabular-nums; }
-  .section { text-transform: uppercase; letter-spacing: 0.12em; font-size: 14px; text-align: center; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: var(--line) 0; }
-  .appear { margin: 0 0 6px; }
-  .who { font-weight: 700; }
-  .cliff { margin: var(--line) 0 0; text-align: center; color: var(--ink-soft); }
-  .certificate { position: relative; margin-top: calc(var(--line) * 1.5); }
-  .certificate p { margin: 0; }
-  .sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-top: calc(var(--line) * 1.5); flex-wrap: wrap; }
-  .sig { text-align: center; min-width: 220px; }
-  .scrawl { font-size: 44px; line-height: 1; display: block; transform: rotate(-4deg); color: #1f2c5a; }
-  .sig-line { border-top: 1px solid var(--ink); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .cert-stamp { position: absolute; right: 8%; bottom: 10px; opacity: 0.85; pointer-events: none; }
-  .actions { margin-top: calc(var(--line) * 2); display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 36px 16px 48px; }
+  .verdict { text-align: center; margin: 6px 0 26px; }
+  .verdict .etch { margin: 0; }
+  .ruling { margin: 6px 0 8px; color: var(--rose); }
+  .ruling :global(.wipe) { color: var(--rose); text-shadow: 0 0 1px rgba(194,83,107,0.5), 0 0 10px rgba(255,255,255,0.8); }
+  .detail { margin: 0 auto; max-width: 30em; font-size: 20px; font-style: italic; line-height: 1.4; }
+  .tally { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 30px; }
+  .tally div { text-align: center; padding: 12px 6px; border-radius: 14px; background: rgba(255,255,255,0.35); }
+  dt { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wiped-soft); }
+  dd { margin: 4px 0 0; font-family: var(--font-finger); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cast { text-align: center; margin: 0; font-size: 30px; }
+  .amp { font-style: italic; color: var(--rose); margin: 0 8px; }
+  .arc { text-align: center; margin: 8px auto 0; max-width: 34em; font-style: italic; color: var(--wiped-soft); }
+  .night { margin-top: 34px; padding-top: 24px; border-top: 1px solid rgba(19,35,42,0.15); }
+  .night .etch { margin: 0; color: var(--rose); }
+  .night h2 { margin: 2px 0 14px; font-size: 30px; font-weight: 400; line-height: 1.15; }
+  .cliff { margin: 18px 0 0; text-align: center; font-style: italic; color: var(--wiped-soft); }
+  .signoff { margin: 34px 0 0; text-align: center; font-style: italic; color: var(--wiped-soft); }
+  .actions { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  @media (max-width: 520px) { .cert-stamp { position: static; margin-top: 16px; text-align: center; } }
 </style>

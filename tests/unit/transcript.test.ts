@@ -56,8 +56,8 @@ describe('recordedPercent', () => {
 
 describe('verdictFor', () => {
   it('scales with accuracy', () => {
-    expect(verdictFor(100).ruling).toBe('GUILTY');
-    expect(verdictFor(60).ruling).toBe('HUNG JURY');
-    expect(verdictFor(10).ruling).toBe('CASE DISMISSED');
+    expect(verdictFor(100).ruling).toBe('CRYSTAL CLEAR');
+    expect(verdictFor(60).ruling).toBe('HAZY');
+    expect(verdictFor(10).ruling).toBe('FOGGED OVER');
   });
 });

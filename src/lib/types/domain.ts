@@ -57,7 +57,7 @@ export interface ChapterStats {
   bestCombo: number;
 }
 
-/** What the court reporter got down for one day (chapter) of testimony. */
+/** What the player kept and lost for one night (chapter) of the story. */
 export interface ChapterRecord {
   chapter: number;
   caughtSegments: string[];

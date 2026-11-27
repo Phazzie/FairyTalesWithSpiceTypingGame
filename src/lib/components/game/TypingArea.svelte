@@ -45,8 +45,8 @@
   }
 </script>
 
-<div class="steno">
-  <label for="steno-input" class="who">THE REPORTER:</label>
+<div class="finger">
+  <label for="steno-input" class="who">Your fingertip</label>
   <input
     id="steno-input"
     bind:this={inputEl}
@@ -56,7 +56,7 @@
     autocorrect="off"
     autocapitalize="off"
     spellcheck="false"
-    placeholder={$isPaused ? 'Court is in recess.' : 'Type the line on the tape…'}
+    placeholder={$isPaused ? 'The water is off.' : 'Trace the line before the steam takes it…'}
     disabled={$isPaused || !$isRunning}
     on:input={handleInput}
     on:keydown={handleKeydown}
@@ -64,11 +64,12 @@
 </div>
 
 <style>
-  .steno { display: flex; align-items: baseline; gap: 12px; background: var(--paper); padding: 14px 18px; box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
-  .who { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; white-space: nowrap; }
-  input { flex: 1; min-width: 0; font-family: var(--font-steno); font-size: 22px; background: transparent; border: none; border-bottom: 2px solid var(--ink); color: var(--ink); padding: 2px 0; outline: none; }
-  input::placeholder { color: var(--ink-faint); font-style: italic; }
-  input:focus { background: linear-gradient(to top, var(--highlight) 0 40%, transparent 40%); }
-  input:disabled { border-bottom-style: dashed; }
-  @media (max-width: 520px) { .steno { flex-direction: column; gap: 4px; align-items: stretch; } input { font-size: 19px; } }
+  .finger { display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-radius: 999px;
+    background: rgba(214,223,224,0.1); border: 1px solid rgba(214,223,224,0.25); box-shadow: 0 10px 30px -12px rgba(0,0,0,0.8); }
+  .who { font-family: var(--font-label); font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--candle); white-space: nowrap; }
+  input { flex: 1; min-width: 0; font-family: var(--font-prose); font-weight: 600; font-size: 23px; background: transparent; border: none; color: var(--fog); padding: 2px 0; outline: none; caret-color: var(--candle); }
+  input::placeholder { color: rgba(214,223,224,0.45); font-style: italic; font-weight: 400; }
+  .finger:focus-within { border-color: var(--candle); box-shadow: 0 0 0 3px rgba(244,178,106,0.2), 0 10px 30px -12px rgba(0,0,0,0.8); }
+  input:disabled { opacity: 0.5; }
+  @media (max-width: 520px) { .finger { flex-direction: column; align-items: stretch; gap: 2px; border-radius: 18px; padding: 10px 16px; } input { font-size: 20px; } }
 </style>

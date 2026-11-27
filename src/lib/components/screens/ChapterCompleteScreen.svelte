@@ -6,11 +6,10 @@
     isRunning, isPaused, phraseStartTime, combo, transcript
   } from '$lib/stores/game';
   import Button from '../ui/Button.svelte';
-  import Stamp from '../ui/Stamp.svelte';
-  import CourtCaption from '../ui/CourtCaption.svelte';
+  import Wipe from '../ui/Wipe.svelte';
   import Transcript from '../game/Transcript.svelte';
   import { START_POSITION } from '$lib/config';
-  import { DAY_WORDS } from '$lib/court';
+  import { NIGHT_WORDS, NIGHT_ORDINALS } from '$lib/steam';
 
   $: ch = $currentChapter;
   $: storyData = $story;
@@ -37,7 +36,7 @@
     combo.set(0);
 
     transitionTo('EXTRACTING');
-    loadingMessage.set(`Court resumes for Day ${DAY_WORDS[nextCh]}`);
+    loadingMessage.set(`Running it hotter for Night ${NIGHT_WORDS[nextCh]}`);
 
     try {
       const res = await fetch('/api/extract-phrases', {
@@ -45,7 +44,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chapterProse: nextProse }),
       });
-      if (!res.ok) throw new Error('The clerk could not cut the tape for the next day (phrase extraction failed).');
+      if (!res.ok) throw new Error('The mirror would not fog for the next night (the lines could not be prepared).');
       const data = await res.json();
       phrases.set(data.phrases);
       currentChapter.set(nextCh);
@@ -65,63 +64,56 @@
 </script>
 
 <div class="wrap">
-  <article class="paper sheet">
-    <div class="right-rule"></div>
-    <CourtCaption compact title="Reporter's transcript of proceedings, Day {DAY_WORDS[ch]} (uncertified)" />
-
-    <div class="adjourn">
-      <Stamp tone="red" rotate={-4} size="lg">Adjourned</Stamp>
-      <h1 class="font-court">End of Day {DAY_WORDS[ch]} proceedings</h1>
+  <article class="mirror sheet">
+    <header class="top">
+      <p class="etch">Night {NIGHT_WORDS[ch]} of three</p>
+      <Wipe tag="h1" size="lg">End of the {NIGHT_ORDINALS[ch]} night</Wipe>
       {#if chapter}<p class="subtitle">"{chapter.title}"</p>{/if}
-    </div>
+    </header>
 
     {#if stats}
-      <table class="tally">
-        <caption>Reporter's tally</caption>
-        <tbody>
-          <tr><th scope="row">Lines taken down</th><td>{stats.caught}</td></tr>
-          <tr><th scope="row">Lines entered as [INAUDIBLE]</th><td class:red={stats.missed > 0}>{stats.missed}</td></tr>
-          <tr><th scope="row">Accuracy of the record</th><td><strong>{stats.accuracy}%</strong></td></tr>
-          <tr><th scope="row">Longest unbroken run, trial to date</th><td>{stats.bestCombo} lines</td></tr>
-        </tbody>
-      </table>
+      <dl class="tally" aria-label="How much you kept">
+        <div><dt>Lines you kept</dt><dd>{stats.caught}</dd></div>
+        <div><dt>Lost to the fog</dt><dd class:lost={stats.missed > 0}>{stats.missed}</dd></div>
+        <div><dt>Still readable</dt><dd><strong>{stats.accuracy}%</strong></dd></div>
+        <div><dt>Longest streak</dt><dd>{stats.bestCombo}</dd></div>
+      </dl>
     {/if}
 
     {#if chapter}
-      <h2 class="section font-court">Testimony as recorded</h2>
+      <p class="etch section">What's left on the glass</p>
       <Transcript prose={chapter.prose} missedSegments={record?.missedSegments ?? []} />
       {#if chapter.cliffhanger}
-        <p class="cliff">
-          <span class="who">THE COURT:</span> We'll stop there for tonight. Let the record reflect the last thing anyone heard:
-          <em>"{chapter.cliffhanger}"</em>
+        <p class="cliff">The last thing written before the glass went white:
+          <span class="wipe line">"{chapter.cliffhanger}"</span>
         </p>
       {/if}
-      <p class="time">(Whereupon, at 11:59 p.m., the proceedings were adjourned.)</p>
     {/if}
 
     <div class="actions">
       {#if isLastChapter}
-        <Button on:click={goToFinalStory}>Close the record and certify →</Button>
+        <Button on:click={goToFinalStory}>See the whole mirror →</Button>
       {:else}
-        <Button on:click={continueStory}>Court resumes: Day {DAY_WORDS[ch + 1]} →</Button>
+        <Button on:click={continueStory}>Run it hotter: Night {NIGHT_WORDS[ch + 1]} →</Button>
       {/if}
     </div>
   </article>
 </div>
 
 <style>
-  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 12px 40px; }
-  .adjourn { text-align: center; margin: calc(var(--line) * 1.2) 0 var(--line); }
-  h1 { font-size: clamp(26px, 5vw, 36px); margin: 16px 0 0; line-height: 1.15; }
-  .subtitle { margin: 4px 0 0; font-style: italic; color: var(--ink-soft); }
-  .tally { width: 100%; border-collapse: collapse; margin: 0 0 var(--line); font-size: 15px; }
-  .tally caption { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px; }
-  .tally th { text-align: left; font-weight: 400; padding: 0; border-bottom: 1px dotted var(--ink-faint); }
-  .tally td { text-align: right; padding: 0; border-bottom: 1px dotted var(--ink-faint); font-variant-numeric: tabular-nums; }
-  .red { color: var(--stamp-red); font-weight: 700; }
-  .section { text-transform: uppercase; letter-spacing: 0.12em; font-size: 14px; text-align: center; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: 0 0 var(--line); }
-  .cliff { margin: var(--line) 0 0; }
-  .who { font-weight: 700; }
-  .time { margin: var(--line) 0 0; text-align: center; color: var(--ink-soft); }
-  .actions { margin-top: calc(var(--line) * 1.5); display: flex; justify-content: center; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 36px 16px 48px; }
+  .top { text-align: center; margin-bottom: 22px; }
+  .top .etch { margin: 0 0 4px; color: var(--rose); }
+  .subtitle { margin: 6px 0 0; font-style: italic; font-size: 20px; color: var(--wiped-soft); }
+  .tally { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 26px; }
+  .tally div { text-align: center; padding: 12px 6px; border-radius: 14px; background: rgba(255,255,255,0.35); }
+  dt { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wiped-soft); }
+  dd { margin: 4px 0 0; font-family: var(--font-finger); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  dd strong { font-weight: 400; color: var(--rose); }
+  .lost { color: var(--wiped-faint); }
+  .section { text-align: center; margin: 0 0 14px; }
+  .cliff { margin: 22px 0 0; text-align: center; font-style: italic; color: var(--wiped-soft); }
+  .cliff .line { display: block; margin-top: 6px; font-style: normal; font-size: 24px; line-height: 1.25; }
+  .actions { margin-top: 30px; display: flex; justify-content: center; }
+  @media (max-width: 560px) { .tally { grid-template-columns: 1fr 1fr; } }
 </style>

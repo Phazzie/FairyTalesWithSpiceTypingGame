@@ -3,59 +3,59 @@
   import { loadingMessage, phase } from '$lib/stores/app';
 
   const phaseMessages: Record<string, string> = {
-    GENERATING: 'The witness is being sworn in',
-    GRADING: 'The jury is reviewing the testimony',
-    EXTRACTING: 'The clerk is cutting the stenograph tape',
+    GENERATING: 'Running the water',
+    GRADING: 'Waiting for the glass to fog',
+    EXTRACTING: 'Breathing on the mirror',
   };
 
-  // Courtroom asides while the story is written (it can take a while).
+  // Things you'd notice while the room steams up (writing the story takes a while).
   const asides = [
-    'Please silence all phones and howling.',
-    'The bailiff has confiscated one (1) silver bullet from the gallery.',
-    'The witness swears to tell the truth, the whole truth, and the steamy parts.',
-    'Counsel for the pack has requested the blinds be closed. The moon objects.',
-    'The jury has been instructed to disregard their own blushing.',
-    'Shiva has been read his rights. He did not listen. He is a wolf.',
+    'Somewhere in the house, a door clicks shut.',
+    'The towel slips off the hook. Nobody picks it up.',
+    'The candle leans toward the door, like it heard something.',
+    'There are pawprints on the bathmat. They were not there before.',
+    'The mirror is clouding from the corners in. Someone is breathing on the other side.',
+    'Shiva says he is just here to check the pipes. He is not a plumber. He is a wolf.',
   ];
   let i = Math.floor(Math.random() * asides.length);
-  const timer = setInterval(() => (i = (i + 1) % asides.length), 3200);
+  const timer = setInterval(() => (i = (i + 1) % asides.length), 3600);
   onDestroy(() => clearInterval(timer));
 
-  $: displayMessage = $loadingMessage || phaseMessages[$phase] || 'All rise';
+  $: displayMessage = $loadingMessage || phaseMessages[$phase] || 'Running the water';
 </script>
 
-<div class="hall">
-  <div class="paper card" role="status" aria-live="polite">
-    <div class="right-rule"></div>
-    <div class="rise font-court">All rise.</div>
-    <svg class="gavel" viewBox="0 0 120 84" aria-hidden="true">
-      <rect x="8" y="68" width="64" height="11" rx="2" fill="#5a4331" />
-      <rect x="14" y="62" width="52" height="7" rx="2" fill="#6d5038" />
-      <g class="swing">
-        <rect x="50" y="33" width="58" height="7" rx="3" fill="#6d5038" />
-        <rect x="18" y="20" width="44" height="30" rx="5" fill="#3a2b1f" />
-        <rect x="18" y="27" width="44" height="4" fill="#c9a25a" />
-        <rect x="18" y="39" width="44" height="4" fill="#c9a25a" />
-      </g>
-    </svg>
-    <h2>{displayMessage}<span class="dots"><span>.</span><span>.</span><span>.</span></span></h2>
+<div class="room">
+  <div class="mirror card" role="status" aria-live="polite">
+    <div class="fogging" aria-hidden="true"></div>
+    <p class="etch">Steam</p>
+    <h2 class="wipe msg">{displayMessage}<span class="dots"><span>.</span><span>.</span><span>.</span></span></h2>
     {#key i}<p class="aside">{asides[i]}</p>{/key}
+    <p class="etch wait">Usually under a minute</p>
+  </div>
+  <div class="drops" aria-hidden="true">
+    {#each Array(9) as _, n}<span style="--x: {8 + n * 11}%; --d: {n * 0.7}s; --t: {3 + (n % 4)}s"></span>{/each}
   </div>
 </div>
 
 <style>
-  .hall { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
-  .card { width: min(520px, 100%); text-align: center; }
-  .rise { font-size: clamp(36px, 8vw, 56px); font-weight: 700; letter-spacing: 0.02em; }
-  h2 { font-size: 17px; margin: 10px 0 6px; font-weight: 700; }
-  .aside { margin: 0; min-height: calc(var(--line) * 2); color: var(--ink-soft); font-style: italic; animation: fade 0.5s ease; }
-  .dots span { animation: blink 1.2s infinite; }
-  .dots span:nth-child(2) { animation-delay: 0.2s; }
-  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  .room { min-height: 100vh; display: grid; place-items: center; padding: 16px; position: relative; overflow: hidden; }
+  .card { width: min(540px, 100%); text-align: center; overflow: hidden; }
+  /* The fog rolling in from the edges of the glass. */
+  .fogging { position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(255,255,255,0.75) 80%);
+    animation: roll 4s ease-in-out infinite alternate; }
+  @keyframes roll { from { opacity: 0.3; transform: scale(1.1); } to { opacity: 1; transform: scale(1); } }
+  .msg { position: relative; font-size: clamp(30px, 7vw, 42px); font-weight: 400; margin: 10px 0 12px; }
+  .aside { position: relative; margin: 0 auto; max-width: 36ch; min-height: 3em; color: var(--wiped-soft); font-style: italic; font-size: 19px; line-height: 1.4; animation: clear 0.9s ease; }
+  .wait { position: relative; margin: 14px 0 0; color: var(--wiped-faint); }
+  .dots span { animation: blink 1.4s infinite; }
+  .dots span:nth-child(2) { animation-delay: 0.25s; }
+  .dots span:nth-child(3) { animation-delay: 0.5s; }
   @keyframes blink { 0%, 60%, 100% { opacity: 0.15; } 30% { opacity: 1; } }
-  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-  .gavel { display: block; width: 132px; height: 92px; margin: 10px auto 0; }
-  .swing { transform-box: view-box; transform-origin: 106px 36px; animation: bang 1.2s infinite cubic-bezier(.6,0,.4,1); }
-  @keyframes bang { 0%, 100% { transform: rotate(30deg); } 42% { transform: rotate(-17deg); } 50% { transform: rotate(-14deg); } 58% { transform: rotate(-17deg); } }
-  @media (prefers-reduced-motion: reduce) { .swing, .dots span { animation: none; } }
+  @keyframes clear { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: none; } }
+  /* Droplets running down the tile. */
+  .drops span { position: absolute; top: -20px; left: var(--x); width: 3px; height: 14px; border-radius: 3px;
+    background: linear-gradient(transparent, rgba(214,223,224,0.5)); animation: run var(--t) linear var(--d) infinite; }
+  @keyframes run { to { transform: translateY(110vh); } }
+  @media (prefers-reduced-motion: reduce) { .dots span, .fogging, .drops span { animation: none; } }
 </style>

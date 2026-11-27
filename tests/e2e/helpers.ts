@@ -10,12 +10,12 @@ export async function startGame(page: Page, opts: { speed?: string } = {}) {
   await page.goto('/');
   if (opts.speed) await page.getByRole('radio', { name: new RegExp(opts.speed) }).click();
   await pickThemes(page);
-  await page.getByRole('button', { name: /File and call the first witness/ }).click();
+  await page.getByRole('button', { name: /Turn on the water/ }).click();
   await expect(typingInput(page)).toBeEnabled();
 }
 
 export function typingInput(page: Page) {
-  return page.getByLabel('THE REPORTER:');
+  return page.getByLabel('Your fingertip');
 }
 
 export async function currentPhrase(page: Page) {
@@ -26,10 +26,10 @@ export async function currentPhrase(page: Page) {
 export async function playChapter(page: Page) {
   const input = typingInput(page);
   for (let i = 0; i < 40; i++) {
-    if (await page.getByRole('heading', { name: /End of Day \w+ proceedings/ }).isVisible()) return i;
+    if (await page.getByRole('heading', { name: /^End of the \w+ night$/ }).isVisible()) return i;
     const phrase = await currentPhrase(page);
     await input.pressSequentially(phrase);
-    await expect(page.getByTestId('phrase').or(page.getByRole('heading', { name: /proceedings/ }))).not.toHaveText(phrase);
+    await expect(page.getByTestId('phrase').or(page.getByRole('heading', { name: /night$/ }))).not.toHaveText(phrase);
   }
   throw new Error('Chapter never finished');
 }

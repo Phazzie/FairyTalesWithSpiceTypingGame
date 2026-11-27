@@ -16,11 +16,10 @@
   import StoryPanel from '../game/StoryPanel.svelte';
   import ComboDisplay from '../game/ComboDisplay.svelte';
   import PauseOverlay from '../game/PauseOverlay.svelte';
-  import { CASE, DAY_WORDS, fee } from '$lib/court';
-  import Stamp from '../ui/Stamp.svelte';
+  import { NIGHT_WORDS, heat } from '$lib/steam';
 
   let typedSoFar = '';
-  /** Last thing the reporter did, shown briefly under the tape. */
+  /** Last thing that happened to a line, shown briefly under the tape. */
   let flash: { kind: 'caught' | 'missed'; id: number } | null = null;
   let flashTimer: ReturnType<typeof setTimeout>;
   function showFlash(kind: 'caught' | 'missed') {
@@ -238,45 +237,42 @@
   });
 </script>
 
-<div class="court">
-  <header class="paper strip">
-    <div class="right-rule"></div>
+<div class="bath">
+  <header class="hud">
     <div class="row">
       <div class="title">
-        <div class="case">People v. Shiva · No. {CASE.number}</div>
-        <h2 class="font-court">
-          Day {DAY_WORDS[$currentChapter] ?? $currentChapter} of Three: {$story?.chapters[$currentChapter - 1]?.title ?? ''}
-        </h2>
+        <p class="etch">Night {NIGHT_WORDS[$currentChapter] ?? $currentChapter} of three</p>
+        <h2 class="wipe-light">{$story?.chapters[$currentChapter - 1]?.title ?? ''}</h2>
         <div class="tally">
-          <span>Lines recorded: <strong>{caught}</strong></span>
-          <span>[INAUDIBLE]: <strong class:red={missed > 0}>{missed}</strong></span>
+          <span>Kept <strong>{caught}</strong></span>
+          <span>Fogged <strong class:lost={missed > 0}>{missed}</strong></span>
           <span class="sr-only">✅ {caught} caught ❌ {missed} missed</span>
         </div>
       </div>
-      <div class="fee">
-        <div class="label">Reporter's fee</div>
-        <div class="amount" data-testid="score">{fee($score)}</div>
+      <div class="heat">
+        <div class="etch">Heat</div>
+        <div class="amount" data-testid="score">{heat($score)}</div>
         <ComboDisplay />
       </div>
     </div>
-    <div class="pages" aria-label="Lines taken this day">
+    <div class="beads" aria-label="Lines tonight">
       {#each currentPhrases as _, i}
-        <span class="tick" class:done={$caughtIndices.includes(i)} class:lost={$missedIndices.includes(i)} class:now={i === $currentPhraseIndex}></span>
+        <span class="bead" class:done={$caughtIndices.includes(i)} class:lost={$missedIndices.includes(i)} class:now={i === $currentPhraseIndex}></span>
       {/each}
     </div>
     <div class="controls no-print">
-      <button type="button" on:click={togglePause} aria-label="Call a recess">Recess <kbd>Esc</kbd></button>
+      <button type="button" on:click={togglePause} aria-label="Turn the water off">Pause <kbd>Esc</kbd></button>
       <button type="button" on:click={toggleFullscreen} aria-label="Toggle fullscreen">Fullscreen</button>
     </div>
   </header>
 
   <StoryPanel />
 
-  <div class="aisle-wrap">
+  <div class="glass-wrap">
     <ShivaRunner currentPhrase={currentPhrase} typedSoFar={typedSoFar} />
     {#if flash?.kind === 'missed'}
       {#key flash.id}
-        <div class="objection" aria-hidden="true"><Stamp tone="red" rotate={-10} size="xl">Objection!</Stamp></div>
+        <div class="puff" aria-hidden="true"><span>the steam took it</span></div>
       {/key}
     {/if}
   </div>
@@ -284,7 +280,7 @@
   <div class="flash-slot" aria-live="polite">
     {#if flash}
       {#key flash.id}
-        <span class="flash {flash.kind}">{flash.kind === 'caught' ? 'So recorded.' : '[INAUDIBLE]'}</span>
+        <span class="flash {flash.kind}">{flash.kind === 'caught' ? 'Mmm. Kept.' : '[fogged over]'}</span>
       {/key}
     {/if}
   </div>
@@ -296,52 +292,56 @@
     on:input={handleInput}
   />
 
-  <p class="rules">Type the line before Shiva reaches the door. Enter on a wrong line strikes it as [INAUDIBLE]. Leaving the tab calls a recess.</p>
+  <p class="rules">Type each line before Shiva slips into the steam. Enter on a wrong line lets it fog over. Leaving the tab turns the water off.</p>
 
   <PauseOverlay on:resume={togglePause} on:quit={handleQuit} />
 </div>
 
 <style>
-  .court { max-width: 900px; margin: 0 auto; padding: 18px 12px 28px; display: flex; flex-direction: column; gap: 14px; }
-  .strip { padding-top: 14px; padding-bottom: 12px; font-size: 13px; line-height: 1.5; }
-  .strip::before { top: 14px; line-height: 1.5; }
-  .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .case { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
-  h2 { font-size: clamp(18px, 3.2vw, 24px); margin: 2px 0 4px; line-height: 1.2; }
-  .tally { display: flex; gap: 16px; flex-wrap: wrap; }
-  .red { color: var(--stamp-red); }
-  .fee { text-align: right; margin-left: auto; }
-  .fee .label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
-  .amount { font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  .pages { display: flex; gap: 3px; margin-top: 10px; }
-  .tick { flex: 1; height: 6px; background: rgba(0,0,0,0.1); }
-  .tick.done { background: var(--ink); }
-  .tick.lost { background: repeating-linear-gradient(-45deg, var(--stamp-red) 0 3px, transparent 3px 5px); }
-  .tick.now { outline: 2px solid var(--stamp-blue); outline-offset: 1px; }
-  .controls { display: flex; gap: 16px; margin-top: 10px; }
-  .controls button { background: none; border: none; padding: 0; font: inherit; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-  .controls button:hover { color: var(--ink); }
-  kbd { font-family: inherit; border: 1px solid currentColor; padding: 0 3px; font-size: 10px; text-decoration: none; }
-  .flash-slot { height: 22px; margin: -8px 0 -6px; text-align: center; }
-  .flash { display: inline-block; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 14px; animation: rise 0.9s ease-out forwards; }
-  .flash.caught { color: #e9dcc2; }
-  .flash.missed { color: #ff8b8b; }
-  @keyframes rise { 0% { opacity: 0; transform: translateY(6px) scale(1.2); } 20% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
-  .aisle-wrap { position: relative; }
-  .objection { position: absolute; left: 50%; top: 78%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; animation: slam 0.75s cubic-bezier(.2,1.5,.4,1) forwards; }
-  .objection :global(.stamp) { background: rgba(245,240,225,0.92); }
-  @keyframes slam { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
-  .rules { color: #b9ab93; font-size: 12px; text-align: center; margin: 0; font-family: var(--font-court); font-style: italic; }
+  .bath { max-width: 900px; margin: 0 auto; padding: 22px 16px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .hud { color: var(--fog); }
+  .hud .etch { color: var(--candle); }
+  .row { display: flex; justify-content: space-between; gap: 16px; }
+  .title { min-width: 0; }
+  .title .etch { margin: 0; }
+  .wipe-light { font-family: var(--font-finger); font-weight: 400; font-size: clamp(22px, 4vw, 32px); margin: 2px 0 4px; line-height: 1.15; color: var(--fog);
+    text-shadow: 0 0 10px rgba(214,223,224,0.35); }
+  .tally { display: flex; gap: 16px; font-family: var(--font-label); font-size: 13px; letter-spacing: 0.06em; color: rgba(214,223,224,0.7); }
+  .tally strong { color: var(--fog); font-weight: 500; }
+  .tally strong.lost { color: var(--rose-soft); }
+  .heat { text-align: right; margin-left: auto; flex: none; }
+  .amount { font-family: var(--font-finger); font-size: 34px; line-height: 1.05; color: var(--candle); text-shadow: 0 0 16px var(--candle-glow); font-variant-numeric: tabular-nums; }
+  /* Beads of condensation, one per line tonight. */
+  .beads { display: flex; gap: 6px; margin-top: 12px; }
+  .bead { flex: 1; height: 6px; border-radius: 6px; background: rgba(214,223,224,0.14); transition: background 0.3s ease; }
+  .bead.done { background: linear-gradient(90deg, var(--candle), var(--rose-soft)); box-shadow: 0 0 8px var(--candle-glow); }
+  .bead.lost { background: rgba(214,223,224,0.5); filter: blur(1.5px); }
+  .bead.now { box-shadow: 0 0 0 2px rgba(244,178,106,0.7); }
+  .controls { display: flex; gap: 18px; margin-top: 10px; }
+  .controls button { background: none; border: none; padding: 0; font-family: var(--font-label); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(214,223,224,0.6); cursor: pointer; }
+  .controls button:hover { color: var(--fog); }
+  kbd { font-family: inherit; border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 10px; }
+  .flash-slot { height: 24px; margin: -8px 0 -6px; text-align: center; }
+  .flash { display: inline-block; font-family: var(--font-finger); font-size: 20px; animation: rise 0.9s ease-out forwards; }
+  .flash.caught { color: var(--candle); }
+  .flash.missed { color: rgba(214,223,224,0.8); filter: blur(0.5px); }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(6px) scale(1.15); } 20% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-10px); filter: blur(3px); } }
+  .glass-wrap { position: relative; }
+  /* A miss: a cloud of steam blooms across the glass and swallows the line. */
+  .puff { position: absolute; left: 50%; top: 40%; width: min(520px, 90%); height: 150px; transform: translate(-50%, -50%); z-index: 5; pointer-events: none;
+    display: grid; place-items: center; animation: bloom 0.9s ease-out forwards; }
+  .puff::before { content: ""; position: absolute; inset: 0; border-radius: 50%; filter: blur(6px);
+    background: radial-gradient(ellipse at center, rgba(240,244,245,0.97) 0%, rgba(230,236,237,0.88) 45%, transparent 72%); }
+  .puff span { position: relative; font-family: var(--font-finger); font-size: 28px; color: var(--wiped); }
+  @keyframes bloom { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 70% { opacity: 0.9; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25); } }
+  .rules { color: rgba(214,223,224,0.5); font-size: 15px; text-align: center; margin: 0; font-style: italic; }
   @media (max-width: 520px) {
-    .court { padding: 10px 8px 20px; gap: 10px; }
-    .strip { padding-top: 10px; padding-bottom: 8px; }
-    .row { flex-wrap: nowrap; gap: 8px; }
-    h2 { font-size: 16px; }
+    .bath { padding: 12px 10px 20px; gap: 12px; }
+    .row { gap: 8px; }
     .tally { gap: 10px; font-size: 12px; }
-    .amount { font-size: 18px; }
-    .fee .label { font-size: 9px; }
+    .amount { font-size: 26px; }
     .controls { margin-top: 6px; }
-    .rules { font-size: 11px; }
+    .rules { font-size: 13px; }
   }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
