@@ -332,5 +332,16 @@
   .objection :global(.stamp) { background: rgba(245,240,225,0.92); }
   @keyframes slam { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
   .rules { color: #b9ab93; font-size: 12px; text-align: center; margin: 0; font-family: var(--font-court); font-style: italic; }
+  @media (max-width: 520px) {
+    .court { padding: 10px 8px 20px; gap: 10px; }
+    .strip { padding-top: 10px; padding-bottom: 8px; }
+    .row { flex-wrap: nowrap; gap: 8px; }
+    h2 { font-size: 16px; }
+    .tally { gap: 10px; font-size: 12px; }
+    .amount { font-size: 18px; }
+    .fee .label { font-size: 9px; }
+    .controls { margin-top: 6px; }
+    .rules { font-size: 11px; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>

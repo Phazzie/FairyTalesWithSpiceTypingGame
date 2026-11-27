@@ -35,6 +35,7 @@
   .head { font-size: 11px; letter-spacing: 0.16em; color: var(--ink-soft); margin-bottom: 2px; }
   .scroll { max-height: calc(var(--line) * 5); overflow-y: auto; scrollbar-width: thin; }
   p { margin: 0; }
+  @media (max-width: 520px) { .scroll { max-height: calc(var(--line) * 3); } .record { font-size: 14px; } }
   .empty { color: var(--ink-faint); font-style: italic; }
   .latest { animation: ink 0.6s ease-out; background: linear-gradient(to top, var(--highlight) 0 45%, transparent 45%); }
   @keyframes ink { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: none; } }

@@ -70,5 +70,7 @@
     .door { width: 40px; }
     .stand { width: 50px; font-size: 8px; }
     .wolf { font-size: 34px; }
+    .aisle { margin-top: 84px; height: 88px; }
+    .bubble { bottom: 50px; }
   }
 </style>
