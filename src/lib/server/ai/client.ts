@@ -1,8 +1,9 @@
 import { env } from '$env/dynamic/private';
 
 const GROK_URL = 'https://api.x.ai/v1/chat/completions';
-const MODEL = 'grok-3-mini';
-const TIMEOUT_MS = 30000;
+const DEFAULT_MODEL = 'grok-3-mini';
+// A full 3-chapter story takes grok-3-mini 30-45s; 30s cut real stories off mid-reply.
+const TIMEOUT_MS = 75000;
 
 /** The xAI key. Vercel's xAI integration names it XAI_API_KEY; GROK_API_KEY is the older name. */
 function apiKey(): string | undefined {
@@ -29,7 +30,7 @@ export async function callAI(prompt: string): Promise<string> {
         'Authorization': `Bearer ${key}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: env.XAI_MODEL || DEFAULT_MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.8,
       }),

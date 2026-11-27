@@ -9,6 +9,9 @@ import { MAX_GEN_ATTEMPTS } from '$lib/config';
 import type { GenerateStoryRequest } from '$lib/types/api';
 import type { Story, GradeReport } from '$lib/types/domain';
 
+// A story plus its grading can take over a minute per attempt.
+export const config = { maxDuration: 300 };
+
 export const POST: RequestHandler = async ({ request }) => {
   let body: GenerateStoryRequest;
   try {
@@ -64,7 +67,13 @@ export const POST: RequestHandler = async ({ request }) => {
     }
   }
 
-  // All attempts failed or story didn't pass - use fallback
+  // No attempt passed the grader, but a real story that validated still beats
+  // serving every player the same built-in one.
+  if (lastStory) {
+    return json({ story: lastStory, gradeReport: lastGrade ?? FALLBACK_GRADE, usedFallback: false, attempts });
+  }
+
+  // Every attempt failed outright - use the built-in story
   return json({
     story: FALLBACK_STORY,
     gradeReport: FALLBACK_GRADE,
