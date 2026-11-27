@@ -13,11 +13,6 @@ const story = JSON.stringify({
   chapters: [ch(1, 'One'), ch(2, 'Two'), ch(3, 'Three')],
   metadata: { characterNames: { alpha: 'Rune', protagonist: 'Mara' }, storyArc: 'They fall.' },
 });
-const grade = (score: number) => JSON.stringify({
-  overallScore: score, passed: score >= 6,
-  categoryScores: { structure: score, chemistry: score, dialogue: score, coherence: score, typeability: score },
-  strengths: [], flaggedIssues: [], recommendations: [],
-});
 
 function call() {
   const request = new Request('http://x/api/generate-story', {
@@ -31,12 +26,19 @@ function call() {
 describe('POST /api/generate-story with a key', () => {
   beforeEach(() => { callAI.mockReset(); vi.spyOn(console, 'error').mockImplementation(() => {}); });
 
-  it('serves a real AI story even when no attempt passes the grader', async () => {
-    callAI.mockResolvedValueOnce(story).mockResolvedValueOnce(grade(4))
-          .mockResolvedValueOnce(story).mockResolvedValueOnce(grade(5));
+  it('serves the first valid AI story without a grading round', async () => {
+    callAI.mockResolvedValueOnce(story);
     const body = await call();
     expect(body.usedFallback).toBe(false);
     expect(body.story.chapters[0].title).toBe('One');
+    expect(callAI).toHaveBeenCalledTimes(1);
+  });
+
+  it('tries again only when the first reply is unusable', async () => {
+    callAI.mockResolvedValueOnce('{"chapters": []}').mockResolvedValueOnce(story);
+    const body = await call();
+    expect(body.usedFallback).toBe(false);
+    expect(body.attempts).toBe(2);
   });
 
   it('falls back to the built-in story only when every attempt fails', async () => {
@@ -44,12 +46,5 @@ describe('POST /api/generate-story with a key', () => {
     const body = await call();
     expect(body.usedFallback).toBe(true);
     expect(body.story.chapters[0].title).toBe(FALLBACK_STORY.chapters[0].title);
-  });
-
-  it('includes the JSON structure in the retry prompt', async () => {
-    callAI.mockResolvedValueOnce(story).mockResolvedValueOnce(grade(4))
-          .mockResolvedValueOnce(story).mockResolvedValueOnce(grade(8));
-    await call();
-    expect(callAI.mock.calls[2][0]).toContain('"chapters"');
   });
 });
