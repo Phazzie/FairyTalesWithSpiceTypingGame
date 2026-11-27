@@ -41,9 +41,9 @@ export function redactProse(prose: string, missedSegments: string[]): Transcript
   for (const seg of missedSegments) {
     const words = seg.trim().split(/\s+/).filter(Boolean);
     if (words.length === 0) continue;
-    const re = new RegExp(words.map(escapeRegex).join('\\s+'));
-    const m = re.exec(prose);
-    if (m) ranges.push([m.index, m.index + m[0].length]);
+    // Global: a segment repeated in the prose is struck everywhere it appears.
+    const re = new RegExp(words.map(escapeRegex).join('\\s+'), 'g');
+    for (const m of prose.matchAll(re)) ranges.push([m.index, m.index + m[0].length]);
   }
   ranges.sort((a, b) => a[0] - b[0]);
 

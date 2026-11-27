@@ -28,6 +28,13 @@ describe('redactProse', () => {
   it('ignores segments that are not in the prose', () => {
     expect(redactProse(prose, ['Nowhere to be found.'])).toHaveLength(1);
   });
+  it('strikes every occurrence of a repeated missed segment', () => {
+    const p = 'She held her breath. He stepped closer. She held her breath.';
+    const parts = redactProse(p, ['She held her breath.', 'He stepped closer.']);
+    expect(parts.every(x => x.inaudible || x.text.trim() === '')).toBe(true);
+    expect(parts.filter(x => x.inaudible)).toHaveLength(3);
+    expect(parts.map(x => x.text).join('')).toBe(p);
+  });
   it('handles regex characters in segments', () => {
     const parts = redactProse('Is it (really) $5? Yes.', ['Is it (really) $5?']);
     expect(parts[0]).toEqual({ text: 'Is it (really) $5?', inaudible: true });
