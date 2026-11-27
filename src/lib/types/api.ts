@@ -13,7 +13,8 @@ export interface GenerateStoryRequest {
 
 export interface GenerateStoryResponse {
   story: Story;
-  gradeReport: GradeReport;
+  /** Only set on the built-in story; AI stories are no longer graded. */
+  gradeReport?: GradeReport;
   usedFallback: boolean;
   attempts: number;
 }
