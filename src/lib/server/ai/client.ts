@@ -4,14 +4,19 @@ const GROK_URL = 'https://api.x.ai/v1/chat/completions';
 const MODEL = 'grok-3-mini';
 const TIMEOUT_MS = 30000;
 
+/** The xAI key. Vercel's xAI integration names it XAI_API_KEY; GROK_API_KEY is the older name. */
+function apiKey(): string | undefined {
+  return env.XAI_API_KEY || env.GROK_API_KEY || undefined;
+}
+
 /** True when an xAI key is configured. Without one, routes go straight to their fallback. */
 export function hasAIKey(): boolean {
-  return !!env.GROK_API_KEY;
+  return !!apiKey();
 }
 
 export async function callAI(prompt: string): Promise<string> {
-  const apiKey = env.GROK_API_KEY;
-  if (!apiKey) throw new Error('GROK_API_KEY not set');
+  const key = apiKey();
+  if (!key) throw new Error('XAI_API_KEY not set');
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -21,7 +26,7 @@ export async function callAI(prompt: string): Promise<string> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${key}`,
       },
       body: JSON.stringify({
         model: MODEL,
