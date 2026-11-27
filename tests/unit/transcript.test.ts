@@ -35,6 +35,13 @@ describe('redactProse', () => {
     expect(parts.filter(x => x.inaudible)).toHaveLength(3);
     expect(parts.map(x => x.text).join('')).toBe(p);
   });
+  it('merges overlapping missed segments instead of dropping the longer one', () => {
+    const p = 'She held her breath. Middle. She held her breath. He stepped closer.';
+    const parts = redactProse(p, ['She held her breath.', 'She held her breath. He stepped closer.']);
+    const struck = parts.filter(x => x.inaudible).map(x => x.text);
+    expect(struck).toEqual(['She held her breath.', 'She held her breath. He stepped closer.']);
+    expect(parts.map(x => x.text).join('')).toBe(p);
+  });
   it('handles regex characters in segments', () => {
     const parts = redactProse('Is it (really) $5? Yes.', ['Is it (really) $5?']);
     expect(parts[0]).toEqual({ text: 'Is it (really) $5?', inaudible: true });

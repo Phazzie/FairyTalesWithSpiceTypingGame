@@ -49,8 +49,14 @@ export function redactProse(prose: string, missedSegments: string[]): Transcript
 
   const parts: TranscriptPart[] = [];
   let pos = 0;
+  // Merge overlapping ranges so the whole union of missed testimony is struck.
+  const merged: Array<[number, number]> = [];
   for (const [start, end] of ranges) {
-    if (start < pos) continue; // overlapping match: already covered
+    const last = merged[merged.length - 1];
+    if (last && start <= last[1]) last[1] = Math.max(last[1], end);
+    else merged.push([start, end]);
+  }
+  for (const [start, end] of merged) {
     if (start > pos) parts.push({ text: prose.slice(pos, start), inaudible: false });
     parts.push({ text: prose.slice(start, end), inaudible: true });
     pos = end;
