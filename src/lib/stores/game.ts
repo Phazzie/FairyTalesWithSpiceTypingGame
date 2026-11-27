@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Phrase, ChapterStats } from '../types/domain';
+import type { Phrase, ChapterStats, ChapterRecord } from '../types/domain';
 
 export const currentChapter = writable(1);
 export const phrases = writable<Phrase[]>([]);
@@ -15,3 +15,4 @@ export const chapterStats = writable<ChapterStats[]>([]);
 export const isPaused = writable(false);
 export const isRunning = writable(false);
 export const phraseStartTime = writable(0);
+export const transcript = writable<ChapterRecord[]>([]);

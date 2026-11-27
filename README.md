@@ -1,24 +1,21 @@
-# 🐺 Fairytales with Spice
+# Fairytales with Spice
 
-A single-player AI-powered werewolf romance typing game built with SvelteKit.
+**In re Fairytales with Spice.** A werewolf romance typing game, dressed as a court case. You are the court reporter at the trial of *The People of Moonfall County v. Shiva, a wolf*. The testimony is a spicy three-chapter werewolf romance written by xAI Grok. Type each line off the stenograph tape before Shiva reaches the courtroom door. Whatever you miss goes into the official record as **[INAUDIBLE]**, and at the end the jury rules on how much of the romance survived.
 
-## What is it?
+A Skeptical Wombat production. Game by Phazzie.
 
-Configure a 3-chapter werewolf romance story, watch the server generate and grade it via xAI Grok, then play through the chapters by typing phrases before **Shiva the wolf** escapes. Catching phrases reveals prose; missing them doesn't. Build combos for bonus points.
-
-## Core loop
+## How a trial runs
 
 ```
-Select settings → Generate story → Type phrases → Chapter results → Final story reveal
+Filing → All rise (story is written) → Day One → Adjourned → Day Two → Adjourned → Day Three → Verdict + certified transcript
 ```
 
-1. Choose a **spice level** (1–5), **game speed**, and exactly **3 themes**
-2. Optionally add character/setting details
-3. Hit **Generate My Story** — the server generates, grades (up to 3 retries), and falls back to a built-in demo story if needed
-4. Type phrases before Shiva crosses the escape threshold
-5. Caught phrases reveal prose segments and award score/combo
-6. Missed phrases reset your combo
-7. Three chapters → final story screen
+1. **The filing** (start screen): pick the rating of the proceedings (spice 1-5, from "G: family court" to "SEALED: clear the gallery"), the rate of speech (game speed), and exactly three counts charged (story themes). Exhibits A-D are optional story details.
+2. **All rise**: the server writes the story, has it graded (up to 3 tries) and falls back to a built-in story if needed.
+3. **Each day of testimony** (a chapter): type the line on the tape before Shiva reaches the EXIT. Caught lines go on the record and earn the reporter's fee (score); an unbroken run (combo) pays more. Enter on a wrong line, or letting Shiva reach the door, strikes the line: "Objection!", and it goes in as [INAUDIBLE].
+4. **Recess**: Escape, the Recess button, or leaving the tab pauses. "Adjourn & save" saves for later; the start screen offers to reconvene.
+5. **Adjourned**: the day's tally and the day's transcript, with your missed lines struck out and a word count of what was lost.
+6. **Verdict**: GUILTY, HUNG JURY or CASE DISMISSED depending on accuracy, then the full certified transcript of all three days. It prints cleanly (Print the transcript).
 
 ## Setup
 
@@ -70,3 +67,15 @@ Unit tests cover: AI response parser, schema validators, phrase fallback extract
 - **Strict phase machine**: `START → GENERATING → GRADING → EXTRACTING → GAMEPLAY → CHAPTER_COMPLETE → STORY_COMPLETE`
 - **Local save/resume**: auto-saves every 5 seconds during gameplay; rejects saves older than 24 h or structurally corrupt
 
+
+## Design notes
+
+- Everything is pleading paper: numbered left margin, double red rule, Courier Prime testimony, Libre Caslon court headings, rubber stamps (CSS masks for uneven ink). The desk around the paper is walnut. Fonts load from Google Fonts.
+- All court wording lives in `src/lib/court.ts`. The transcript logic (what was struck, verdicts) is in `src/lib/utils/transcript.ts`.
+
+## What's still rough
+
+- **Without `GROK_API_KEY` every trial is the same built-in story** (Elara and Caden). The game works, but replays get repetitive. Add the key in Vercel to get a new story each time.
+- The game needs a keyboard. It works on a phone with the on-screen keyboard, but it's cramped.
+- Line numbers in the margin are decorative; they don't line up exactly with every line of text the way real pleading paper does.
+- Accuracy on the verdict counts lines (phrases), while the transcript counts words lost. They can disagree slightly.

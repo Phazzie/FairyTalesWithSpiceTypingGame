@@ -4,8 +4,9 @@
   import {
     phrases, currentPhraseIndex, shivaPosition, score, combo, bestCombo,
     revealedSegments, caughtIndices, missedIndices, isRunning, isPaused,
-    phraseStartTime, chapterStats, currentChapter
+    phraseStartTime, chapterStats, currentChapter, transcript
   } from '$lib/stores/game';
+  import { buildChapterRecord, INAUDIBLE_MARK } from '$lib/utils/transcript';
   import { story, settings, transitionTo, errorMessage } from '$lib/stores/app';
   import { SPEEDS, START_POSITION, ESCAPE_THRESHOLD } from '$lib/config';
   import { calculatePoints, getNextCombo, resetCombo, matchPhrase } from '$lib/utils/scoring';
@@ -15,9 +16,18 @@
   import StoryPanel from '../game/StoryPanel.svelte';
   import ComboDisplay from '../game/ComboDisplay.svelte';
   import PauseOverlay from '../game/PauseOverlay.svelte';
-  import ProgressBar from '../ui/ProgressBar.svelte';
+  import { CASE, DAY_WORDS, fee } from '$lib/court';
+  import Stamp from '../ui/Stamp.svelte';
 
   let typedSoFar = '';
+  /** Last thing the reporter did, shown briefly under the tape. */
+  let flash: { kind: 'caught' | 'missed'; id: number } | null = null;
+  let flashTimer: ReturnType<typeof setTimeout>;
+  function showFlash(kind: 'caught' | 'missed') {
+    flash = { kind, id: Date.now() };
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => (flash = null), 900);
+  }
   let interval: ReturnType<typeof setInterval>;
   let saveInterval: ReturnType<typeof setInterval>;
 
@@ -69,6 +79,7 @@
     shivaPosition.set(START_POSITION);
     typedSoFar = '';
     phraseStartTime.set(Date.now());
+    showFlash('caught');
     advancePhrase();
   }
 
@@ -76,8 +87,10 @@
     const idx = get(currentPhraseIndex);
     combo.set(resetCombo());
     missedIndices.update(arr => [...arr, idx]);
+    revealedSegments.update(segs => [...segs, `${INAUDIBLE_MARK}${idx}`]);
     shivaPosition.set(START_POSITION);
     typedSoFar = '';
+    showFlash('missed');
     phraseStartTime.set(Date.now());
     advancePhrase();
   }
@@ -110,6 +123,11 @@
       score: get(score),
       bestCombo: get(bestCombo),
     }]);
+
+    transcript.update(t => [
+      ...t.filter(r => r.chapter !== ch),
+      buildChapterRecord(ch, get(phrases), get(caughtIndices), get(missedIndices)),
+    ]);
 
     transitionTo('CHAPTER_COMPLETE');
   }
@@ -171,6 +189,7 @@
         combo: get(combo),
         bestCombo: get(bestCombo),
         chapterStats: get(chapterStats),
+        transcript: get(transcript),
         settings: settingsVal,
         savedAt: Date.now(),
       });
@@ -198,6 +217,7 @@
           combo: get(combo),
           bestCombo: get(bestCombo),
           chapterStats: get(chapterStats),
+          transcript: get(transcript),
           settings: settingsVal,
           savedAt: Date.now(),
         });
@@ -214,51 +234,61 @@
   onDestroy(() => {
     clearInterval(interval);
     clearInterval(saveInterval);
+    clearTimeout(flashTimer);
   });
 </script>
 
-<div class="min-h-screen flex flex-col p-4 gap-4 max-w-4xl mx-auto">
-  <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <div>
-      <h2 class="text-lg font-bold text-purple-400">
-        Chapter {$currentChapter} — {$story?.chapters[$currentChapter - 1]?.title ?? ''}
-      </h2>
-      <div class="flex gap-4 text-sm text-slate-400">
-        <span>✅ {caught} caught</span>
-        <span>❌ {missed} missed</span>
+<div class="court">
+  <header class="paper strip">
+    <div class="right-rule"></div>
+    <div class="row">
+      <div class="title">
+        <div class="case">People v. Shiva · No. {CASE.number}</div>
+        <h2 class="font-court">
+          Day {DAY_WORDS[$currentChapter] ?? $currentChapter} of Three: {$story?.chapters[$currentChapter - 1]?.title ?? ''}
+        </h2>
+        <div class="tally">
+          <span>Lines recorded: <strong>{caught}</strong></span>
+          <span>[INAUDIBLE]: <strong class:red={missed > 0}>{missed}</strong></span>
+          <span class="sr-only">✅ {caught} caught ❌ {missed} missed</span>
+        </div>
+      </div>
+      <div class="fee">
+        <div class="label">Reporter's fee</div>
+        <div class="amount" data-testid="score">{fee($score)}</div>
+        <ComboDisplay />
       </div>
     </div>
-    <div class="text-right">
-      <div class="text-2xl font-bold text-yellow-400">{$score.toLocaleString()}</div>
-      <ComboDisplay />
+    <div class="pages" aria-label="Lines taken this day">
+      {#each currentPhrases as _, i}
+        <span class="tick" class:done={$caughtIndices.includes(i)} class:lost={$missedIndices.includes(i)} class:now={i === $currentPhraseIndex}></span>
+      {/each}
     </div>
-    <div class="flex items-center gap-2">
-      <button
-        type="button"
-        aria-label="Toggle pause"
-        class="p-2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
-        on:click={togglePause}
-      ><span aria-hidden="true">⏸</span> Pause</button>
-      <button
-        type="button"
-        aria-label="Toggle fullscreen"
-        class="p-2 text-slate-400 hover:text-slate-200 transition-colors text-sm"
-        on:click={toggleFullscreen}
-      ><span aria-hidden="true">⤢</span> Fullscreen</button>
+    <div class="controls no-print">
+      <button type="button" on:click={togglePause} aria-label="Call a recess">Recess <kbd>Esc</kbd></button>
+      <button type="button" on:click={toggleFullscreen} aria-label="Toggle fullscreen">Fullscreen</button>
     </div>
-  </div>
+  </header>
 
-  <!-- Progress -->
-  <ProgressBar value={progress} />
-
-  <!-- Story panel -->
   <StoryPanel />
 
-  <!-- Track & Runner -->
-  <ShivaRunner currentPhrase={currentPhrase} typedSoFar={typedSoFar} />
+  <div class="aisle-wrap">
+    <ShivaRunner currentPhrase={currentPhrase} typedSoFar={typedSoFar} />
+    {#if flash?.kind === 'missed'}
+      {#key flash.id}
+        <div class="objection" aria-hidden="true"><Stamp tone="red" rotate={-10} size="xl">Objection!</Stamp></div>
+      {/key}
+    {/if}
+  </div>
 
-  <!-- Typing area -->
+  <div class="flash-slot" aria-live="polite">
+    {#if flash}
+      {#key flash.id}
+        <span class="flash {flash.kind}">{flash.kind === 'caught' ? 'So recorded.' : '[INAUDIBLE]'}</span>
+      {/key}
+    {/if}
+  </div>
+
   <TypingArea
     currentPhrase={currentPhrase}
     on:catch={handleCatch}
@@ -266,9 +296,52 @@
     on:input={handleInput}
   />
 
-  <!-- Pause hint -->
-  <p class="text-slate-600 text-xs text-center">Press Escape or click ⏸ to pause · Tab away auto-pauses</p>
+  <p class="rules">Type the line before Shiva reaches the door. Enter on a wrong line strikes it as [INAUDIBLE]. Leaving the tab calls a recess.</p>
 
-  <!-- Pause overlay -->
   <PauseOverlay on:resume={togglePause} on:quit={handleQuit} />
 </div>
+
+<style>
+  .court { max-width: 900px; margin: 0 auto; padding: 18px 12px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .strip { padding-top: 14px; padding-bottom: 12px; font-size: 13px; line-height: 1.5; }
+  .strip::before { top: 14px; line-height: 1.5; }
+  .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .case { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  h2 { font-size: clamp(18px, 3.2vw, 24px); margin: 2px 0 4px; line-height: 1.2; }
+  .tally { display: flex; gap: 16px; flex-wrap: wrap; }
+  .red { color: var(--stamp-red); }
+  .fee { text-align: right; margin-left: auto; }
+  .fee .label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .amount { font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .pages { display: flex; gap: 3px; margin-top: 10px; }
+  .tick { flex: 1; height: 6px; background: rgba(0,0,0,0.1); }
+  .tick.done { background: var(--ink); }
+  .tick.lost { background: repeating-linear-gradient(-45deg, var(--stamp-red) 0 3px, transparent 3px 5px); }
+  .tick.now { outline: 2px solid var(--stamp-blue); outline-offset: 1px; }
+  .controls { display: flex; gap: 16px; margin-top: 10px; }
+  .controls button { background: none; border: none; padding: 0; font: inherit; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .controls button:hover { color: var(--ink); }
+  kbd { font-family: inherit; border: 1px solid currentColor; padding: 0 3px; font-size: 10px; text-decoration: none; }
+  .flash-slot { height: 22px; margin: -8px 0 -6px; text-align: center; }
+  .flash { display: inline-block; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 14px; animation: rise 0.9s ease-out forwards; }
+  .flash.caught { color: #e9dcc2; }
+  .flash.missed { color: #ff8b8b; }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(6px) scale(1.2); } 20% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
+  .aisle-wrap { position: relative; }
+  .objection { position: absolute; left: 50%; top: 78%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; animation: slam 0.75s cubic-bezier(.2,1.5,.4,1) forwards; }
+  .objection :global(.stamp) { background: rgba(245,240,225,0.92); }
+  @keyframes slam { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+  .rules { color: #b9ab93; font-size: 12px; text-align: center; margin: 0; font-family: var(--font-court); font-style: italic; }
+  @media (max-width: 520px) {
+    .court { padding: 10px 8px 20px; gap: 10px; }
+    .strip { padding-top: 10px; padding-bottom: 8px; }
+    .row { flex-wrap: nowrap; gap: 8px; }
+    h2 { font-size: 16px; }
+    .tally { gap: 10px; font-size: 12px; }
+    .amount { font-size: 18px; }
+    .fee .label { font-size: 9px; }
+    .controls { margin-top: 6px; }
+    .rules { font-size: 11px; }
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

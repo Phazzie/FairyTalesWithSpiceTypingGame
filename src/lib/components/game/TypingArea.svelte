@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, tick } from 'svelte';
-  import { matchPhrase } from '$lib/utils/scoring';
   import { isPaused, isRunning } from '$lib/stores/game';
+  import { matchPhrase } from '$lib/utils/scoring';
 
   export let currentPhrase: string = '';
   let input = '';
@@ -45,8 +45,10 @@
   }
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="steno">
+  <label for="steno-input" class="who">THE REPORTER:</label>
   <input
+    id="steno-input"
     bind:this={inputEl}
     bind:value={input}
     type="text"
@@ -54,11 +56,19 @@
     autocorrect="off"
     autocapitalize="off"
     spellcheck="false"
-    placeholder={$isPaused ? 'Paused...' : 'Type the phrase above...'}
+    placeholder={$isPaused ? 'Court is in recess.' : 'Type the line on the tape…'}
     disabled={$isPaused || !$isRunning}
-    class="w-full bg-slate-800 border border-slate-600 focus:border-purple-500 rounded-lg px-4 py-3 text-white font-mono text-lg outline-none transition-colors placeholder-slate-500 disabled:opacity-50"
     on:input={handleInput}
     on:keydown={handleKeydown}
   />
-  <p class="text-slate-500 text-sm text-center">Type the phrase • Press Enter to submit</p>
 </div>
+
+<style>
+  .steno { display: flex; align-items: baseline; gap: 12px; background: var(--paper); padding: 14px 18px; box-shadow: 0 10px 24px -10px rgba(0,0,0,0.7); }
+  .who { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; white-space: nowrap; }
+  input { flex: 1; min-width: 0; font-family: var(--font-steno); font-size: 22px; background: transparent; border: none; border-bottom: 2px solid var(--ink); color: var(--ink); padding: 2px 0; outline: none; }
+  input::placeholder { color: var(--ink-faint); font-style: italic; }
+  input:focus { background: linear-gradient(to top, var(--highlight) 0 40%, transparent 40%); }
+  input:disabled { border-bottom-style: dashed; }
+  @media (max-width: 520px) { .steno { flex-direction: column; gap: 4px; align-items: stretch; } input { font-size: 19px; } }
+</style>
