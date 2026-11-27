@@ -1,12 +1,20 @@
 # PROGRESS: Fairytales with Spice (typing game)
 
+## Update, 27 Nov evening: AI stories are live
+
+- The xAI key was saved in Vercel as `XAI_API_KEY`; the app only read `GROK_API_KEY`, so every trial was still the built-in story. Fixed (PR #7).
+- With the key on, every AI attempt still failed: the 30s timeout cut replies off, and the rewrite prompt never told the model the JSON shape. Fixed (PR #8).
+- The story then took 96s because a hidden grade-and-rewrite loop polished a score nobody sees. Removed (PR #9).
+- Checked on the live site: a fresh AI story ("Shadows of the Forbidden Moon", Lila Voss and Rafe Blackwood) with AI-picked lines, typing scores and strikes as before, no console errors.
+- **Still rough:** the first load is about a minute.
+
 ## Morning report
 
 **Fairytales with Spice: DONE** by the definition, with one caveat below.
 - **World:** you're the court reporter at *The People of Moonfall County v. Shiva, a wolf*. The romance is the testimony; every line you miss goes on the record as [INAUDIBLE], and a jury rules on what survived.
 - **Private preview:** https://fairytales-typing-game-git-claude-proj-a34dad-phazzies-projects.vercel.app (branch `claude/project-thread-eozle3`). **Update:** PR #5 was merged to main on 27 Nov, so the courtroom version is now the live, public site at https://fairytales-typing-game.vercel.app.
 - **Honest score: 8/10.** The world runs every screen and the joke lands. It loses points because without your xAI key every trial is the same story, and on a phone it's playable but cramped.
-- **Still rough:** same story every time until `GROK_API_KEY` is set; phone play is tight with the keyboard up; margin line numbers are decorative and don't line up with every line of text.
+- **Still rough:** (fixed since, see update above) same story every time until the key is set; phone play is tight with the keyboard up; margin line numbers are decorative and don't line up with every line of text.
 - **Boldest bit:** the "CONTAINS EXPLICIT TESTIMONY" stamp on the front page and the SEALED rating ("minors and grandmothers must leave"). This is the one that could embarrass you.
 - **Caveat on "nothing public":** the production site at https://fairytales-typing-game.vercel.app is public. Since PR #5 merged it serves the courtroom version.
 

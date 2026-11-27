@@ -11,7 +11,7 @@ Filing → All rise (story is written) → Day One → Adjourned → Day Two →
 ```
 
 1. **The filing** (start screen): pick the rating of the proceedings (spice 1-5, from "G: family court" to "SEALED: clear the gallery"), the rate of speech (game speed), and exactly three counts charged (story themes). Exhibits A-D are optional story details.
-2. **All rise**: the server writes the story, has it graded (up to 3 tries) and falls back to a built-in story if needed.
+2. **All rise**: the server asks xAI (grok-3-mini) for a fresh 3-chapter story, about 40 seconds, plus a few seconds to pick the lines for Day One. It tries a second time only if the reply is unusable, and falls back to a built-in story if both fail.
 3. **Each day of testimony** (a chapter): type the line on the tape before Shiva reaches the EXIT. Caught lines go on the record and earn the reporter's fee (score); an unbroken run (combo) pays more. Enter on a wrong line, or letting Shiva reach the door, strikes the line: "Objection!", and it goes in as [INAUDIBLE].
 4. **Recess**: Escape, the Recess button, or leaving the tab pauses. "Adjourn & save" saves for later; the start screen offers to reconvene.
 5. **Adjourned**: the day's tally and the day's transcript, with your missed lines struck out and a word count of what was lost.
@@ -75,7 +75,7 @@ Unit tests cover: AI response parser, schema validators, phrase fallback extract
 
 ## What's still rough
 
-- **Without `XAI_API_KEY` every trial is the same built-in story** (Elara and Caden). The game works, but replays get repetitive. Add the key in Vercel to get a new story each time.
+- **The first story takes about a minute to arrive.** The loading screen keeps the joke going, but it is a long "All rise". Without `XAI_API_KEY` every trial is the same built-in story (Elara and Caden).
 - The game needs a keyboard. It works on a phone with the on-screen keyboard, but it's cramped.
 - Line numbers in the margin are decorative; they don't line up exactly with every line of text the way real pleading paper does.
 - Accuracy on the verdict counts lines (phrases), while the transcript counts words lost. They can disagree slightly.
