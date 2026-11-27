@@ -2,19 +2,32 @@
   import { createEventDispatcher } from 'svelte';
   import { isPaused } from '$lib/stores/game';
   import Button from '../ui/Button.svelte';
+  import Stamp from '../ui/Stamp.svelte';
 
   const dispatch = createEventDispatcher<{ resume: void; quit: void }>();
 </script>
 
 {#if $isPaused}
-  <div class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
-    <div class="bg-slate-800 border border-purple-500/50 rounded-2xl p-8 text-center space-y-4 shadow-2xl">
-      <h2 class="text-2xl font-bold text-purple-400">Paused</h2>
-      <p class="text-slate-400">Press Escape or click Resume to continue</p>
-      <div class="flex gap-4 justify-center">
-        <Button variant="primary" on:click={() => dispatch('resume')}>Resume</Button>
-        <Button variant="secondary" on:click={() => dispatch('quit')}>Quit to Menu</Button>
+  <div class="veil" role="dialog" aria-modal="true" aria-labelledby="recess-title">
+    <div class="paper card">
+      <div class="right-rule"></div>
+      <Stamp tone="ink" rotate={-3} size="lg">Recess</Stamp>
+      <h2 id="recess-title" class="font-court">The court is in recess.</h2>
+      <p>The defendant is being watched by the bailiff. He is not moving. Neither is the clock.</p>
+      <div class="actions">
+        <Button on:click={() => dispatch('resume')}>Reconvene</Button>
+        <Button variant="secondary" on:click={() => dispatch('quit')}>Adjourn &amp; save</Button>
       </div>
+      <p class="hint">Escape also reconvenes.</p>
     </div>
   </div>
 {/if}
+
+<style>
+  .veil { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(20, 14, 10, 0.78); backdrop-filter: blur(2px); }
+  .card { max-width: 440px; width: 100%; text-align: left; }
+  h2 { font-size: 24px; margin: 18px 0 4px; }
+  p { margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .hint { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+</style>

@@ -57,6 +57,13 @@ export interface ChapterStats {
   bestCombo: number;
 }
 
+/** What the court reporter got down for one day (chapter) of testimony. */
+export interface ChapterRecord {
+  chapter: number;
+  caughtSegments: string[];
+  missedSegments: string[];
+}
+
 export interface SaveState {
   phase: AppPhase;
   story: Story;
@@ -71,5 +78,7 @@ export interface SaveState {
   bestCombo: number;
   chapterStats: ChapterStats[];
   settings: StoryCustomization;
+  /** Finished chapters' records. Optional so saves from before it existed still load. */
+  transcript?: ChapterRecord[];
   savedAt: number;
 }

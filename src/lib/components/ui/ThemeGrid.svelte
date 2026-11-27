@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { THEMES } from '$lib/config';
+  import { ROMAN } from '$lib/court';
   export let selected: string[] = [];
   const MAX_THEMES = 3;
 
@@ -16,22 +17,39 @@
   }
 </script>
 
-<div class="grid grid-cols-3 gap-2">
-  {#each THEMES as theme}
+<div class="counts">
+  {#each THEMES as theme, i}
+    {@const on = selected.includes(theme)}
     <button
       type="button"
-      class="px-2 py-1.5 rounded-lg text-sm text-center transition-colors {selected.includes(theme)
-        ? 'bg-purple-600 text-white border border-purple-400'
-        : selected.length >= MAX_THEMES
-        ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}"
+      aria-pressed={on}
+      aria-label={theme}
+      class="count"
+      class:on
+      disabled={!on && selected.length >= MAX_THEMES}
       on:click={() => toggle(theme)}
-      disabled={!selected.includes(theme) && selected.length >= MAX_THEMES}
     >
-      {theme}
+      <span class="box">{on ? 'X' : ''}</span>
+      <span><span class="num">Count {ROMAN[i]}.</span> {theme}</span>
     </button>
   {/each}
 </div>
-<p class="text-slate-400 text-sm mt-2">
-  Select exactly 3 themes ({selected.length}/3 selected)
+<p class="tally" class:done={selected.length === MAX_THEMES}>
+  {selected.length} of 3 counts charged
 </p>
+
+<style>
+  .counts { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+  .count { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 2px 0; line-height: 24px; cursor: pointer; background: none; border: none; color: inherit; font: inherit; }
+  .count .box { margin-top: 3px; }
+  .count:hover:not(:disabled) .box { background: var(--highlight); }
+  .count:focus-visible { outline: 2px solid var(--stamp-blue); outline-offset: 2px; }
+  .count:disabled { color: var(--ink-faint); cursor: not-allowed; }
+  .count:disabled .box { border-color: var(--ink-faint); }
+  .num { color: var(--ink-soft); }
+  .on { font-weight: 700; }
+  .on .num { color: var(--stamp-red); }
+  .tally { margin: 6px 0 0; color: var(--ink-soft); }
+  .tally.done { color: var(--ink); }
+  @media (max-width: 520px) { .counts { grid-template-columns: 1fr; } }
+</style>

@@ -1,15 +1,139 @@
 @import "tailwindcss";
 
+/*
+ * World: a court reporter's desk. Everything is pleading paper, Courier
+ * testimony, Caslon court headings and rubber stamps. The paper never goes
+ * dark; the desk around it is walnut.
+ */
 :root {
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-accent: #a855f7;
-  --color-text: #f1f5f9;
-  --color-muted: #94a3b8;
+  color-scheme: light;
+  --desk: #241d17;
+  --desk-2: #2f261e;
+  --paper: #f5f0e1;
+  --paper-edge: #e7dfc8;
+  --ink: #1d1b16;
+  --ink-soft: #57524a;
+  --ink-faint: #8d8676;
+  --rule: #b3261e;
+  --stamp-red: #b8212b;
+  --stamp-blue: #26428f;
+  --highlight: #fff1a8;
+  --line: 28px;
+  --font-court: "Libre Caslon Text", "Georgia", serif;
+  --font-steno: "Courier Prime", "Courier New", monospace;
+  --font-sign: "Mrs Saint Delafield", cursive;
 }
 
+html { background: var(--desk); }
+
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font-steno);
+  background-color: var(--desk);
+  background-image:
+    repeating-linear-gradient(92deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(88deg, rgba(0,0,0,0.12) 0 1px, transparent 1px 23px),
+    radial-gradient(ellipse at 50% -10%, #3b3026 0%, var(--desk) 60%);
+}
+
+.font-court { font-family: var(--font-court); }
+.font-steno { font-family: var(--font-steno); }
+.font-sign { font-family: var(--font-sign); }
+
+/* A sheet of pleading paper: numbered left gutter, double red rule, single right rule. */
+.paper {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 0 var(--paper-edge), 0 18px 40px -12px rgba(0,0,0,0.65), 0 2px 6px rgba(0,0,0,0.35);
+  padding: calc(var(--line) * 1.5) 28px calc(var(--line) * 1.5) 74px;
+  line-height: var(--line);
+  overflow: hidden;
+}
+.paper::before {
+  content: "1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 10\A 11\A 12\A 13\A 14\A 15\A 16\A 17\A 18\A 19\A 20\A 21\A 22\A 23\A 24\A 25\A 26\A 27\A 28\A 29\A 30\A 31\A 32\A 33\A 34\A 35\A 36\A 37\A 38\A 39\A 40\A 41\A 42\A 43\A 44\A 45\A 46\A 47\A 48\A 49\A 50\A 51\A 52\A 53\A 54\A 55\A 56\A 57\A 58\A 59\A 60\A 61\A 62\A 63\A 64\A 65\A 66\A 67\A 68\A 69\A 70\A 71\A 72\A 73\A 74\A 75\A 76\A 77\A 78\A 79\A 80\A 81\A 82\A 83\A 84\A 85\A 86\A 87\A 88\A 89\A 90\A 91\A 92\A 93\A 94\A 95\A 96\A 97\A 98\A 99\A 100\A 101\A 102\A 103\A 104\A 105\A 106\A 107\A 108\A 109\A 110\A 111\A 112\A 113\A 114\A 115\A 116\A 117\A 118\A 119\A 120";
+  white-space: pre;
+  position: absolute;
+  top: calc(var(--line) * 1.5);
+  left: 0;
+  width: 44px;
+  text-align: right;
+  font-family: var(--font-steno);
+  font-size: 12px;
+  line-height: var(--line);
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+.paper::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 54px;
+  width: 4px;
+  border-left: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+  pointer-events: none;
+}
+.paper > .right-rule {
+  position: absolute; inset: 0 14px 0 auto; width: 0;
+  border-right: 1px solid color-mix(in srgb, var(--rule) 55%, transparent);
+  pointer-events: none;
+}
+@media (max-width: 520px) {
+  .paper { padding-left: 44px; padding-right: 18px; }
+  .paper::before { width: 26px; font-size: 10px; }
+  .paper::after { left: 32px; width: 3px; }
+  .paper > .right-rule { right: 8px; }
+}
+
+/* Court-style buttons: ink boxes, all caps. */
+.btn {
+  font-family: var(--font-steno);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 15px;
+  line-height: 1.2;
+  padding: 12px 18px;
+  border: 2px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+.btn:hover:not(:disabled) { background: #000; transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:focus-visible { outline: 3px solid var(--stamp-blue); outline-offset: 2px; }
+.btn:disabled { cursor: not-allowed; background: transparent; color: var(--ink-faint); border-color: var(--ink-faint); border-style: dashed; }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,0.06); }
+.btn-desk { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.btn-desk:hover:not(:disabled) { background: #fff; }
+
+/* Form check box like a printed court form. */
+.box {
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px; flex: none;
+  border: 1.5px solid var(--ink);
+  font-weight: 700; font-size: 15px; line-height: 1;
+  background: #fffdf6;
+}
+
+/* Missed testimony in the record. */
+.inaudible {
+  font-family: var(--font-steno);
+  font-weight: 700;
+  font-size: 0.85em;
+  letter-spacing: 0.04em;
+  color: var(--stamp-red);
+  background: repeating-linear-gradient(-45deg, rgba(184,33,43,0.08) 0 6px, rgba(184,33,43,0.14) 6px 12px);
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+@media print {
+  html, body { background: #fff !important; }
+  .no-print { display: none !important; }
+  .paper { box-shadow: none !important; }
 }

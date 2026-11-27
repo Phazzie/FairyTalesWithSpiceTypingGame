@@ -8,7 +8,7 @@
   import ErrorScreen from '$lib/components/screens/ErrorScreen.svelte';
 </script>
 
-<main class="min-h-screen bg-slate-900 text-slate-100">
+<main class="min-h-screen">
   {#if $phase === 'START'}
     <StartScreen />
   {:else if $phase === 'GENERATING' || $phase === 'GRADING' || $phase === 'EXTRACTING'}

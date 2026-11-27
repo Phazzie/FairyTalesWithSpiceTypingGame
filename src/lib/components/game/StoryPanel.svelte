@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { revealedSegments } from '$lib/stores/game';
+  import { INAUDIBLE_MARK } from '$lib/utils/transcript';
 
   let panel: HTMLDivElement;
 
@@ -10,28 +11,31 @@
   }
 </script>
 
-<div bind:this={panel} data-testid="story-panel" class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 max-h-48 overflow-y-auto">
-  {#if $revealedSegments.length === 0}
-    <p class="text-slate-500 text-sm italic text-center">
-      Catch phrases to reveal the story...
-    </p>
-  {:else}
-    <div class="space-y-1">
+<section class="paper record" aria-label="The record so far">
+  <div class="right-rule"></div>
+  <div class="head">THE RECORD, AS TAKEN</div>
+  <div bind:this={panel} data-testid="story-panel" class="scroll">
+    {#if $revealedSegments.length === 0}
+      <p class="empty">Nothing is on the record yet. The witness is about to speak.</p>
+    {:else}
       {#each $revealedSegments as segment, i}
-        <p
-          class="text-slate-300 text-sm leading-relaxed"
-          style={i === $revealedSegments.length - 1 ? 'animation: fadeIn 0.5s ease-in' : ''}
-        >
-          {segment}
-        </p>
+        {#if segment.startsWith(INAUDIBLE_MARK)}
+          <p class:latest={i === $revealedSegments.length - 1}><span class="inaudible">[INAUDIBLE]</span></p>
+        {:else}
+          <p class:latest={i === $revealedSegments.length - 1}>{segment}</p>
+        {/if}
       {/each}
-    </div>
-  {/if}
-</div>
+    {/if}
+  </div>
+</section>
 
 <style>
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .record { padding-top: 14px; padding-bottom: 14px; font-size: 15px; }
+  .record::before { top: 14px; }
+  .head { font-size: 11px; letter-spacing: 0.16em; color: var(--ink-soft); margin-bottom: 2px; }
+  .scroll { max-height: calc(var(--line) * 5); overflow-y: auto; scrollbar-width: thin; }
+  p { margin: 0; }
+  .empty { color: var(--ink-faint); font-style: italic; }
+  .latest { animation: ink 0.6s ease-out; background: linear-gradient(to top, var(--highlight) 0 45%, transparent 45%); }
+  @keyframes ink { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: none; } }
 </style>
