@@ -7,6 +7,8 @@ import { validatePhrases } from '$lib/server/ai/validators';
 import { extractPhrasesFallback } from '$lib/server/game/phraseFallback';
 import type { ExtractPhrasesRequest } from '$lib/types/api';
 
+export const config = { maxDuration: 120 };
+
 export const POST: RequestHandler = async ({ request }) => {
   let body: ExtractPhrasesRequest;
   try {

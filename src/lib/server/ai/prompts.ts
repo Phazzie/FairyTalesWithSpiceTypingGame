@@ -4,6 +4,36 @@ export function jsonSuffix(): string {
   return 'Respond ONLY with valid JSON. No markdown fences. No explanation.';
 }
 
+const STORY_SCHEMA = `{
+  "chapters": [
+    {
+      "number": 1,
+      "title": "Chapter title",
+      "prose": "Full chapter text 400-600 words",
+      "cliffhanger": "Cliffhanger sentence or null"
+    },
+    {
+      "number": 2,
+      "title": "Chapter title",
+      "prose": "Full chapter text 400-600 words",
+      "cliffhanger": "Cliffhanger sentence or null"
+    },
+    {
+      "number": 3,
+      "title": "Chapter title",
+      "prose": "Full chapter text 400-600 words",
+      "cliffhanger": null
+    }
+  ],
+  "metadata": {
+    "characterNames": {
+      "alpha": "Alpha werewolf name",
+      "protagonist": "Protagonist name"
+    },
+    "storyArc": "One sentence describing the story arc"
+  }
+}`;
+
 export function buildStoryPrompt(
   spiceLevel: number,
   themes: string[],
@@ -34,35 +64,7 @@ Requirements:
 - Build romantic tension throughout
 
 Return this exact JSON structure:
-{
-  "chapters": [
-    {
-      "number": 1,
-      "title": "Chapter title",
-      "prose": "Full chapter text 400-600 words",
-      "cliffhanger": "Cliffhanger sentence or null"
-    },
-    {
-      "number": 2,
-      "title": "Chapter title",
-      "prose": "Full chapter text 400-600 words",
-      "cliffhanger": "Cliffhanger sentence or null"
-    },
-    {
-      "number": 3,
-      "title": "Chapter title",
-      "prose": "Full chapter text 400-600 words",
-      "cliffhanger": null
-    }
-  ],
-  "metadata": {
-    "characterNames": {
-      "alpha": "Alpha werewolf name",
-      "protagonist": "Protagonist name"
-    },
-    "storyArc": "One sentence describing the story arc"
-  }
-}
+${STORY_SCHEMA}
 
 ${jsonSuffix()}`;
 }
@@ -112,7 +114,8 @@ ${storyText}
 
 Please rewrite the story addressing these issues. Maintain the same JSON structure with exactly 3 chapters (400-600 words each), cliffhangers for chapters 1 and 2, and null cliffhanger for chapter 3.
 
-Return the same JSON structure as before.
+Return this exact JSON structure:
+${STORY_SCHEMA}
 
 ${jsonSuffix()}`;
 }
