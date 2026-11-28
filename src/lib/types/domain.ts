@@ -13,6 +13,8 @@ export interface StoryCustomization {
   loveInterestIdea?: string;
   setting?: string;
   plotHook?: string;
+  /** Set when two players wrote the two sides (see utils/couple.ts). */
+  couple?: import('../utils/couple').CoupleState;
 }
 
 export interface StoryChapter {
