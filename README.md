@@ -10,7 +10,7 @@ A Skeptical Wombat production. Game by Phazzie.
 Tell the mirror → Running the water (story is written) → Night One → End of the night → Night Two → … → Night Three → The whole mirror
 ```
 
-1. **The start page**: "Tell the mirror what you want" is up front: pick exactly three themes, and optionally fill in Her, Him, Where and What starts it. All of it goes into the story prompt. Then pick how hot the water is (spice 1-5, Lukewarm to "Don't touch the dial") and how fast the fog comes back (game speed).
+1. **The start page**: "Tell the mirror what you want" is up front: pick exactly three themes, and optionally fill in Her, Him, Where and What starts it. All of it goes into the story prompt. In **Two of us** mode (one phone, passed back and forth) each player first describes the other, the other has to agree (or send it back), and only then does each add their own side. Then pick how hot the water is (spice 1-5, Lukewarm to "Don't touch the dial") and how fast the fog comes back (game speed).
 2. **Running the water**: the server asks xAI (grok-3-mini) for a fresh 3-chapter story, about 40 seconds, plus a few seconds to pick the lines for Night One. If every attempt fails it uses a built-in story.
 3. **Each night** (a chapter): type the line before Shiva reaches the steam. Kept lines add Heat (score); a streak ("Don't stop ×N") adds more. Enter on a wrong line, or letting him vanish, fogs the line over.
 4. **Water's off**: Escape, the Pause button, or leaving the tab pauses. "Leave it for later" saves; the start page offers "Pick up where you left off".

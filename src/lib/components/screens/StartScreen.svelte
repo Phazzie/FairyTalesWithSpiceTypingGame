@@ -10,6 +10,8 @@
   import type { SpiceLevel, SpeedSetting } from '$lib/types/domain';
   import { START_POSITION } from '$lib/config';
   import MirrorTitle from '../ui/MirrorTitle.svelte';
+  import CoupleSetup from '../ui/CoupleSetup.svelte';
+  import { coupleDetails, initialCouple, type CoupleState } from '$lib/utils/couple';
   import { NIGHT_WORDS } from '$lib/steam';
 
   // Start from the last settings used, so "Try Again" after an error keeps your picks.
@@ -17,8 +19,12 @@
   let spiceLevel: SpiceLevel = previous?.spiceLevel ?? 3;
   let speedSetting: SpeedSetting = previous?.speedSetting ?? 'normal';
   let selectedThemes: string[] = previous?.selectedThemes ? [...previous.selectedThemes] : [];
-  let characterIdea = previous?.characterIdea ?? '';
-  let loveInterestIdea = previous?.loveInterestIdea ?? '';
+  let couple: CoupleState = previous?.couple ?? initialCouple();
+  let players: 'one' | 'two' = previous?.couple ? 'two' : 'one';
+  let characterIdea = previous?.couple ? '' : previous?.characterIdea ?? '';
+  let loveInterestIdea = previous?.couple ? '' : previous?.loveInterestIdea ?? '';
+  $: coupleDone = coupleDetails(couple);
+  $: canStart = selectedThemes.length === 3 && (players === 'one' || coupleDone !== null);
   let setting = previous?.setting ?? '';
   let plotHook = previous?.plotHook ?? '';
   let savedState = false;
@@ -31,14 +37,18 @@
   });
 
   async function generate() {
+    const two = players === 'two' ? coupleDetails(couple) : null;
+    const hero = two ? two.characterIdea : characterIdea;
+    const wolf = two ? two.loveInterestIdea : loveInterestIdea;
     const currentSettings = {
       spiceLevel,
       speedSetting,
       selectedThemes,
-      characterIdea: characterIdea || undefined,
-      loveInterestIdea: loveInterestIdea || undefined,
+      characterIdea: hero || undefined,
+      loveInterestIdea: wolf || undefined,
       setting: setting || undefined,
       plotHook: plotHook || undefined,
+      couple: two ? couple : undefined,
     };
 
     settings.set(currentSettings);
@@ -59,7 +69,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           spiceLevel,
-          customization: { selectedThemes, characterIdea, loveInterestIdea, setting, plotHook },
+          customization: { selectedThemes, characterIdea: hero, loveInterestIdea: wolf, setting, plotHook },
         }),
       });
 
@@ -143,9 +153,25 @@
         <ThemeGrid bind:selected={selectedThemes} on:change={e => selectedThemes = e.detail} />
       </fieldset>
 
+      <fieldset>
+        <legend class="etch">Who's in the bathroom</legend>
+        <div role="radiogroup" aria-label="How many players" class="players">
+          <button type="button" role="radio" aria-checked={players === 'one'} class:on={players === 'one'} on:click={() => (players = 'one')}>Just me</button>
+          <button type="button" role="radio" aria-checked={players === 'two'} class:on={players === 'two'} on:click={() => (players = 'two')}>Two of us</button>
+        </div>
+      </fieldset>
+
+      {#if players === 'two'}
+        <fieldset>
+          <legend class="etch">Write each other</legend>
+          <CoupleSetup bind:state={couple} />
+        </fieldset>
+      {/if}
+
       <fieldset class="details">
         <legend class="etch">Whisper the details <span class="opt">optional</span></legend>
         <div class="grid">
+          {#if players === 'one'}
           <label>
             <span>Her</span>
             <input id="characterIdea" bind:value={characterIdea} type="text" maxlength="100" placeholder="a botanist who studies rare plants" />
@@ -154,6 +180,7 @@
             <span>Him</span>
             <input id="loveInterestIdea" bind:value={loveInterestIdea} type="text" maxlength="100" placeholder="a brooding pack alpha with a secret" />
           </label>
+          {/if}
           <label>
             <span>Where</span>
             <input id="setting" bind:value={setting} type="text" maxlength="100" placeholder="a remote mountain research station" />
@@ -179,11 +206,13 @@
     </section>
 
     <div class="submit">
-      <Button disabled={selectedThemes.length !== 3} on:click={generate}>
+      <Button disabled={!canStart} on:click={generate}>
         Turn on the water
       </Button>
       {#if selectedThemes.length !== 3}
         <p class="refusal">Write three things on the glass first ({3 - selectedThemes.length} to go).</p>
+      {:else if !canStart}
+        <p class="refusal">Finish writing each other first.</p>
       {:else}
         <p class="ready">Lock the door. It takes about a minute to steam up.</p>
       {/if}
@@ -209,6 +238,10 @@
   fieldset:last-child { margin-bottom: 0; }
   legend { padding: 0; margin-bottom: 10px; }
   .opt { color: var(--wiped-faint); letter-spacing: 0.12em; margin-left: 6px; }
+  .players { display: inline-flex; padding: 4px; border-radius: 999px; background: rgba(19,35,42,0.08); }
+  .players button { font-family: var(--font-label); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; border: none; background: none; color: var(--wiped-soft); cursor: pointer; }
+  .players button.on { background: var(--wiped); color: var(--fog); }
+  .players button:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
   .grid label { display: flex; flex-direction: column; gap: 2px; }
   .grid label span { font-family: var(--font-finger); font-size: 19px; color: var(--wiped); }
