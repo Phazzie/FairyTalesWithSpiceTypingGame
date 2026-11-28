@@ -36,59 +36,6 @@ test.describe('start screen', () => {
   });
 });
 
-test('two players write each other first, must agree, then add their own side', async ({ page }) => {
-  let sent: any = null;
-  await page.route('**/api/generate-story', async r => { sent = r.request().postDataJSON(); await r.fulfill({ status: 500, body: '{}' }); });
-  await page.goto('/');
-  await page.getByRole('radio', { name: 'Two of us' }).click();
-  await pickThemes(page);
-  const go = page.getByRole('button', { name: /Turn on the water/ });
-  await expect(go).toBeDisabled();
-  await page.getByLabel('The one who wanders in').fill('Ava');
-  await page.getByLabel('The wolf').fill('Rook');
-  await page.getByRole('button', { name: 'Start writing' }).click();
-
-  await page.getByRole('button', { name: "I'm Ava" }).click();
-  await expect(page.getByRole('heading', { name: 'Ava, describe Rook.' })).toBeVisible();
-  await page.getByLabel('Describe Rook').fill('short and grumpy');
-  await page.getByRole('button', { name: 'Pass it to Rook' }).click();
-
-  // The glass stays fogged until Rook has the phone.
-  await expect(page.getByText('short and grumpy')).toHaveCount(0);
-  await page.getByRole('button', { name: "I'm Rook" }).click();
-  await page.getByRole('button', { name: 'Not quite' }).click();
-  await page.getByLabel('What should Ava change?').fill('taller, and the grumpy is a front');
-  await page.getByRole('button', { name: 'Send it back' }).click();
-
-  await page.getByRole('button', { name: "I'm Ava" }).click();
-  await expect(page.getByText('Rook sent it back: "taller, and the grumpy is a front"')).toBeVisible();
-  await page.getByLabel('Describe Rook').fill('tall, growls at the kettle, soft underneath');
-  await page.getByRole('button', { name: 'Pass it to Rook' }).click();
-
-  await page.getByRole('button', { name: "I'm Rook" }).click();
-  await page.getByRole('button', { name: "Yes, that's me" }).click();
-  await page.getByLabel('Describe Ava').fill('a night-shift nurse who is never scared');
-  await page.getByRole('button', { name: 'Pass it to Ava' }).click();
-
-  await page.getByRole('button', { name: "I'm Ava" }).click();
-  await page.getByRole('button', { name: "Yes, that's me" }).click();
-  await page.getByLabel('Your own side').fill('she is a little scared');
-  await page.getByRole('button', { name: 'Pass it to Rook' }).click();
-
-  await page.getByRole('button', { name: "I'm Rook" }).click();
-  await page.getByLabel('Your own side').fill('he has been watching her shifts');
-  await page.getByRole('button', { name: 'Done' }).click();
-
-  await expect(go).toBeEnabled();
-  await go.click();
-  await expect(page.getByText('The hot water ran out.')).toBeVisible();
-  expect(sent.customization.characterIdea).toBe("Named Ava. As Rook sees them: a night-shift nurse who is never scared. In Ava's own words: she is a little scared.");
-  expect(sent.customization.loveInterestIdea).toBe("Named Rook. As Ava sees them: tall, growls at the kettle, soft underneath. In Rook's own words: he has been watching her shifts.");
-  // Trying again keeps both sides.
-  await page.getByRole('button', { name: 'Try the water again' }).click();
-  await expect(page.getByText("In Rook's own words: he has been watching her shifts.")).toBeVisible();
-});
-
 test('full game: three chapters to the final story', async ({ page }) => {
   await startGame(page);
   const nights = ['One', 'Two', 'Three'];

@@ -1,12 +1,5 @@
 # PROGRESS: Fairytales with Spice (typing game)
 
-## Update, 28 Nov: two players write each other
-
-- Trizzy: each player first writes the other person's side of the story, the other has to agree, and only then do they write their own.
-- The game had no two-player mode, so this is pass-the-phone on one device ("Who's in the bathroom: Just me / Two of us"). Order: A describes B, B agrees or sends it back with a note, B describes A, A agrees, then A adds their own side, then B. Between turns the glass fogs over ("Hand it to Rook") so nobody peeks.
-- Both sides go into the story prompt with the players' names (A is the one who wanders in, B is the wolf). Where and What starts it stay shared. "Try the water again" after an error keeps both sides.
-- Rules live in `src/lib/utils/couple.ts` (3 unit tests); one browser test plays the whole flow, including a send-back, and checks what reaches the story writer.
-
 ## Update, 27 Nov night: courtroom out, Steam in
 
 - Trizzy: the courtroom theme isn't sexy. Pitched three worlds (a late-night hotline, a letter you're writing, a steamed-up bathroom mirror) and picked **Steam**: the whole game is a fogged mirror at night, lit by one candle. You write the story into the steam; whatever you miss fogs back over.
